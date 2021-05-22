@@ -17,6 +17,20 @@ Sub DrawTaskAsNode()
     Next
 End Sub
 
+Sub SwapNodeLocation()
+    Dim sh1 As Shape
+    Dim sh2 As Shape
+    Set sh1 = Selection.ShapeRange(1)
+    Set sh2 = Selection.ShapeRange(2)
+    
+    tt = sh1.Top
+    ll = sh1.Left
+    sh1.Top = sh2.Top
+    sh1.Left = sh2.Left
+    sh2.Top = tt
+    sh2.Left = ll
+End Sub
+
 Sub OrderNodeVertical()
     'To keep selection order, store shapes to a Collection.
     Dim c As Collection
