@@ -54,7 +54,7 @@ Sub ConnectStreight()
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
         cn.Line.EndArrowheadStyle = msoArrowheadTriangle
-        cn.ConnectorFormat.BeginConnect sh, 8
+        cn.ConnectorFormat.BeginConnect sh, 7
         cn.ConnectorFormat.EndConnect sh2, 3
     Next
 End Sub
