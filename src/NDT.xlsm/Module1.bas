@@ -17,6 +17,21 @@ Sub DrawTaskAsNode()
     Next
 End Sub
 
+Sub FindDisconnection()
+    Dim sh As Shape
+    For Each sh In DrawSheet.Shapes
+        ' This magic number -2 is just taken from an inspection result.
+        ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
+        If sh.AutoShapeType = -2 Then
+            If sh.ConnectorFormat.BeginConnected And sh.ConnectorFormat.EndConnected Then
+                sh.Line.ForeColor.RGB = vbBlack
+            Else
+                sh.Line.ForeColor.RGB = vbRed
+            End If
+        End If
+    Next
+End Sub
+
 Sub SwapNodeLocation()
     Dim sh1 As Shape
     Dim sh2 As Shape
