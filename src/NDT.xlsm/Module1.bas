@@ -70,7 +70,7 @@ Sub FindDisconnection()
         ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
         If sh.Type = msoAutoShape And sh.AutoShapeType = -2 Then
             If sh.ConnectorFormat.BeginConnected And sh.ConnectorFormat.EndConnected Then
-                cn.Line.ForeColor.RGB = CONNECTOR_COLOR
+                sh.Line.ForeColor.RGB = CONNECTOR_COLOR
             Else
                 sh.Line.ForeColor.RGB = vbRed
             End If
