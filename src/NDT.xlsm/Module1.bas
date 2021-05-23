@@ -5,7 +5,7 @@ Const X_DISTANCE = 10
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
     Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x, pos_y, SIZE, SIZE)
-    s.Fill.ForeColor.RGB = XlRgbColor.rgbAliceBlue
+    s.Fill.ForeColor.RGB = XlRgbColor.rgbLightSalmon
     s.Line.Visible = msoFalse
     s.TextFrame2.TextRange.Font.Fill.ForeColor.RGB = vbBlack
     With s.TextFrame2
