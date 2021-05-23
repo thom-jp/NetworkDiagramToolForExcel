@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module1"
+Attribute VB_Name = "DrawFeature"
 Const SIZE = 60
 Const Y_DISTANCE = 20
 Const X_DISTANCE = 10
@@ -135,7 +135,6 @@ Sub ConnectStreight()
     For i = 1 To c.Count - 1
         Set sh = c.Item(i)
         Set sh2 = c.Item(i + 1)
-        Debug.Print sh.TextFrame2.TextRange.Text, sh2.TextFrame2.TextRange.Text
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
@@ -157,7 +156,6 @@ Sub ConnectSplit()
     For i = 2 To c.Count
         Set sh = c.Item(1)
         Set sh2 = c.Item(i)
-        Debug.Print sh.TextFrame2.TextRange.Text, sh2.TextFrame2.TextRange.Text
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
