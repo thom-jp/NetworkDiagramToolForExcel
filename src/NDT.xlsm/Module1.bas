@@ -160,3 +160,23 @@ Sub ConnectSplit()
     Next
 End Sub
 
+Sub ConnectMarge()
+    Dim c As Collection: Set c = New Collection
+    Dim sh As Shape
+    For Each sh In Selection.ShapeRange
+        c.Add sh
+    Next
+    
+    Dim sh2 As Shape
+    For i = 1 To c.Count - 1
+        Set sh = c.Item(i)
+        Set sh2 = c.Item(c.Count)
+        Debug.Print sh.TextFrame2.TextRange.Text, sh2.TextFrame2.TextRange.Text
+        
+        Dim cn As Shape
+        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
+        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
+        cn.ConnectorFormat.BeginConnect sh, 7
+        cn.ConnectorFormat.EndConnect sh2, 3
+    Next
+End Sub
