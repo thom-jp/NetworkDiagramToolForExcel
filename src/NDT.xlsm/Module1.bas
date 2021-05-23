@@ -5,7 +5,18 @@ Const X_DISTANCE = 10
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
     Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x, pos_y, SIZE, SIZE)
+    s.Fill.ForeColor.RGB = XlRgbColor.rgbAliceBlue
+    s.Line.Visible = msoFalse
+    s.TextFrame2.TextRange.Font.Fill.ForeColor.RGB = vbBlack
+    With s.TextFrame2
+        .VerticalAnchor = msoAnchorMiddle
+        .HorizontalAnchor = msoAnchorNone
+        .TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    End With
     s.TextFrame2.TextRange.Text = task_title
+    s.TextFrame2.WordWrap = msoFalse
+    s.TextFrame.HorizontalOverflow = xlOartHorizontalOverflowOverflow
+    s.TextFrame.VerticalOverflow = xlOartVerticalOverflowOverflow
 End Function
 
 Sub DrawTaskAsNode()
@@ -14,6 +25,12 @@ Sub DrawTaskAsNode()
     For Each r In Selection
         Call CreateNodeShape(SIZE, x, y, r.Value)
         x = x + SIZE + X_DISTANCE
+    Next
+End Sub
+
+Sub RemoveAllShapse()
+    For Each sh In DrawSheet.Shapes
+        sh.Delete
     Next
 End Sub
 
