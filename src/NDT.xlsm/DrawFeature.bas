@@ -186,3 +186,35 @@ Sub ConnectMarge()
         cn.ConnectorFormat.EndConnect sh2, 3
     Next
 End Sub
+
+Sub NumberingNodes()
+    Dim n As Integer: n = 0
+    Dim sh As Shape
+    For Each sh In Selection.ShapeRange
+        If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
+            Dim tmpTaskTitle As String: tmpTaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
+            tmpTaskTitle = n & "." & RemoveNumberPrefix(tmpTaskTitle)
+            sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
+            n = n + 1
+        End If
+    Next
+End Sub
+
+Sub DeNumberingAllNodes()
+    Dim sh As Shape
+    For Each sh In DrawSheet.Shapes
+        If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
+            Dim tmpTaskTitle As String: tmpTaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
+            tmpTaskTitle = RemoveNumberPrefix(tmpTaskTitle)
+            sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
+        End If
+    Next
+End Sub
+
+Function RemoveNumberPrefix(tmp_str As String) As String
+    If IsNumeric(Split(tmp_str, ".")(0)) Then
+        RemoveNumberPrefix = Mid(tmp_str, InStr(1, tmp_str, ".") + 1)
+    Else
+        RemoveNumberPrefix = tmp_str
+    End If
+End Function
