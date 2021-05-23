@@ -5,7 +5,7 @@ Const X_DISTANCE = 10
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
     Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x, pos_y, SIZE, SIZE)
-    s.Fill.ForeColor.RGB = XlRgbColor.rgbLightSalmon
+    s.Fill.ForeColor.RGB = XlRgbColor.rgbLavender
     s.Line.Visible = msoFalse
     s.TextFrame2.TextRange.Font.Fill.ForeColor.RGB = vbBlack
     With s.TextFrame2
@@ -118,6 +118,27 @@ Sub ConnectStreight()
     For i = 1 To c.Count - 1
         Set sh = c.Item(i)
         Set sh2 = c.Item(i + 1)
+        Debug.Print sh.TextFrame2.TextRange.Text, sh2.TextFrame2.TextRange.Text
+        
+        Dim cn As Shape
+        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
+        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
+        cn.ConnectorFormat.BeginConnect sh, 7
+        cn.ConnectorFormat.EndConnect sh2, 3
+    Next
+End Sub
+
+Sub ConnectSplit()
+    Dim c As Collection: Set c = New Collection
+    Dim sh As Shape
+    For Each sh In Selection.ShapeRange
+        c.Add sh
+    Next
+    
+    Dim sh2 As Shape
+    For i = 2 To c.Count
+        Set sh = c.Item(1)
+        Set sh2 = c.Item(i)
         Debug.Print sh.TextFrame2.TextRange.Text, sh2.TextFrame2.TextRange.Text
         
         Dim cn As Shape
