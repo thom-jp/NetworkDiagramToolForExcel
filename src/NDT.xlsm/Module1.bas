@@ -13,11 +13,34 @@ Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
         .HorizontalAnchor = msoAnchorNone
         .TextRange.ParagraphFormat.Alignment = msoAlignCenter
     End With
-    s.TextFrame2.TextRange.Text = task_title
+    s.TextFrame2.TextRange.Text = OptimizeTextReturn(task_title, 5)
     s.TextFrame2.WordWrap = msoFalse
     s.TextFrame.HorizontalOverflow = xlOartHorizontalOverflowOverflow
     s.TextFrame.VerticalOverflow = xlOartVerticalOverflowOverflow
 End Function
+Function OptimizeTextReturn(original_text, normal_width) As String
+    Dim w As Integer: w = normal_width
+    Dim h As Integer: h = Round(Len(original_text) / normal_width + 0.4, 0)
+    
+    Do Until h <= w
+        w = w + 1
+        h = Round(Len(original_text) / w + 0.4, 0)
+    Loop
+
+    Dim result_string As String: result_string = ""
+    Dim rest_string As String: rest_string = original_text
+    
+    Do While Len(rest_string) > 0
+        result_string = result_string & Left(rest_string, w) & vbCrLf
+        rest_string = Mid(rest_string, w + 1)
+    Loop
+    
+    'I'm still investigation that why minus 2 works. I just  wanted to remove the last vbCrLf. IS vbCrLf two letter?"
+    result_string = Left(result_string, Len(result_string) - 2)
+    
+    OptimizeTextReturn = result_string
+End Function
+
 
 Sub DrawTaskAsNode()
     x = X_DISTANCE: y = Y_DISTANCE
