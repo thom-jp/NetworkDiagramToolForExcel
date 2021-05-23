@@ -2,9 +2,12 @@ Attribute VB_Name = "Module1"
 Const SIZE = 60
 Const Y_DISTANCE = 20
 Const X_DISTANCE = 10
+Const X_OFFSET = 100
+Const Y_OFFSET = 100
+
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
-    Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x, pos_y, SIZE, SIZE)
+    Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x + X_OFFSET, pos_y + Y_OFFSET, SIZE, SIZE)
     s.Fill.ForeColor.RGB = XlRgbColor.rgbLavender
     s.Line.Visible = msoFalse
     s.TextFrame2.TextRange.Font.Fill.ForeColor.RGB = vbBlack
@@ -53,7 +56,9 @@ End Sub
 
 Sub RemoveAllShapse()
     For Each sh In DrawSheet.Shapes
-        sh.Delete
+        If sh.Type <> msoFormControl Then
+            sh.Delete
+        End If
     Next
 End Sub
 
@@ -62,7 +67,7 @@ Sub FindDisconnection()
     For Each sh In DrawSheet.Shapes
         ' This magic number -2 is just taken from an inspection result.
         ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
-        If sh.AutoShapeType = -2 Then
+        If sh.Type = msoAutoShape And sh.AutoShapeType = -2 Then
             If sh.ConnectorFormat.BeginConnected And sh.ConnectorFormat.EndConnected Then
                 sh.Line.ForeColor.RGB = vbBlack
             Else
@@ -77,7 +82,7 @@ Sub RemoveConnections()
     For Each sh In DrawSheet.Shapes
         ' This magic number -2 is just taken from an inspection result.
         ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
-        If sh.AutoShapeType = -2 Then
+        If sh.Type = msoAutoShape And sh.AutoShapeType = -2 Then
             sh.Delete
         End If
     Next
