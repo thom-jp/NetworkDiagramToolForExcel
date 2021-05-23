@@ -2,8 +2,9 @@ Attribute VB_Name = "Module1"
 Const SIZE = 60
 Const Y_DISTANCE = 20
 Const X_DISTANCE = 10
-Const X_OFFSET = 100
-Const Y_OFFSET = 100
+Const X_OFFSET = 50
+Const Y_OFFSET = 150
+Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
 
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
@@ -69,7 +70,7 @@ Sub FindDisconnection()
         ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
         If sh.Type = msoAutoShape And sh.AutoShapeType = -2 Then
             If sh.ConnectorFormat.BeginConnected And sh.ConnectorFormat.EndConnected Then
-                sh.Line.ForeColor.RGB = vbBlack
+                cn.Line.ForeColor.RGB = CONNECTOR_COLOR
             Else
                 sh.Line.ForeColor.RGB = vbRed
             End If
@@ -138,6 +139,7 @@ Sub ConnectStreight()
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
+        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
         cn.Line.EndArrowheadStyle = msoArrowheadTriangle
         cn.ConnectorFormat.BeginConnect sh, 7
         cn.ConnectorFormat.EndConnect sh2, 3
@@ -159,6 +161,7 @@ Sub ConnectSplit()
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
+        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
         cn.Line.EndArrowheadStyle = msoArrowheadTriangle
         cn.ConnectorFormat.BeginConnect sh, 7
         cn.ConnectorFormat.EndConnect sh2, 3
@@ -176,10 +179,10 @@ Sub ConnectMarge()
     For i = 1 To c.Count - 1
         Set sh = c.Item(i)
         Set sh2 = c.Item(c.Count)
-        Debug.Print sh.TextFrame2.TextRange.Text, sh2.TextFrame2.TextRange.Text
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
+        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
         cn.Line.EndArrowheadStyle = msoArrowheadTriangle
         cn.ConnectorFormat.BeginConnect sh, 7
         cn.ConnectorFormat.EndConnect sh2, 3
