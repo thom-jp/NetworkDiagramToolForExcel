@@ -27,4 +27,5 @@ Sub testNodeClassBehavior()
     n.AddDependency n3
     
     n.DumpStatus
+    
 End Sub

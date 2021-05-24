@@ -28,8 +28,14 @@ Sub ReadDependency()
         End If
     Next
     
+    Dim C As Collection: Set C = New Collection
     For Each k In nodes.Keys
-        Set n = nodes.Item(k)
+        C.Add nodes.Item(k)
+    Next
+    
+    CSort C, "SortKey1"
+    
+    For Each n In C
         n.DumpStatus
     Next
 End Sub
