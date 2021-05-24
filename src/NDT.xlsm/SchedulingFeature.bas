@@ -4,12 +4,13 @@ Sub PlotSchedule()
     Set c = ReadDependency
     Dim n As Node
     
+    Application.Calculation = xlCalculationManual
     For Each n In c
         ScheduleSheet.Range("B4").Offset(Val(n.TaskTitle), 0).Value = n.TaskTitle
         ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
         ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
         ScheduleSheet.Range("D4").Offset(Val(n.TaskTitle), 0).Value = 1
-        ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).FormulaR1C1 = "=RC[-1]+RC[-2]"
+        ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
         tmpStr = ""
         Dim n2 As Node
         For Each n2 In n.GetDependency
@@ -17,7 +18,7 @@ Sub PlotSchedule()
         Next
             
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
-        If n.GetDependency.Count > 0 Then ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).Formula = "=MAX(" & tmpStr & ") + 1"
+        If n.GetDependency.Count > 0 Then ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).Formula = "=WORKDAY(MAX(" & tmpStr & "),1,Holidays!A:A)"
         
         tmpStr = ""
         For Each n2 In n.GetDependency
@@ -26,8 +27,8 @@ Sub PlotSchedule()
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
         ScheduleSheet.Range("C4").Offset(Val(n.TaskTitle), 0).Value = tmpStr
     Next
-    
     Range("E4").Value = Int(Now())
+    Application.Calculation = xlCalculationAutomatic
 End Sub
 
 
