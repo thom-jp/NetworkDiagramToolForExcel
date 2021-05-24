@@ -6,7 +6,8 @@ Sub PlotSchedule()
     
     Application.Calculation = xlCalculationManual
     For Each n In c
-        ScheduleSheet.Range("B4").Offset(Val(n.TaskTitle), 0).Value = n.TaskTitle
+        ScheduleSheet.Range("A4").Offset(Val(n.TaskTitle), 0).Value = Val(n.TaskTitle)
+        ScheduleSheet.Range("B4").Offset(Val(n.TaskTitle), 0).Value = Mid(n.TaskTitle, InStr(1, n.TaskTitle, ".") + 1)
         ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
         ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
         ScheduleSheet.Range("D4").Offset(Val(n.TaskTitle), 0).Value = 1
