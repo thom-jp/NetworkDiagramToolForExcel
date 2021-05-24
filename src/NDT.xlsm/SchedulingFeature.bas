@@ -1,5 +1,7 @@
 Attribute VB_Name = "SchedulingFeature"
 Sub PlotSchedule()
+    ScheduleSheet.Range(Range("A4"), Range("A4").SpecialCells(xlLastCell)).ClearContents
+    
     Dim c As Collection
     Set c = ReadDependency
     Dim n As Node
