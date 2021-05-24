@@ -32,6 +32,16 @@ Public Sub DumpStatus()
     Next
 End Sub
 
+Public Function GetDependency() As Collection
+    Dim c As Collection
+    Set c = New Collection
+    For Each k In Dependency.Keys
+        c.Add Dependency.Item(k)
+    Next
+    CollectionSort.CSort c, "SortKey1"
+    Set GetDependency = c
+End Function
+
 Private Sub Class_Terminate()
     Dependency.RemoveAll
 End Sub

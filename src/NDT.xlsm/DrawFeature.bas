@@ -105,11 +105,11 @@ End Sub
 
 Sub OrderNodeVertical()
     'To keep selection order, store shapes to a Collection.
-    Dim C As Collection
-    Set C = New Collection
+    Dim c As Collection
+    Set c = New Collection
     Dim sh As Shape
     For Each sh In Selection.ShapeRange
-        C.Add sh
+        c.Add sh
     Next
 
     Selection.ShapeRange.Group.Select
@@ -117,7 +117,7 @@ Sub OrderNodeVertical()
     topEdge = Selection.ShapeRange.Top
     Selection.ShapeRange.Ungroup
     
-    For Each sh In C
+    For Each sh In c
         sh.Left = leftEdge
         sh.Top = topEdge + (SIZE + Y_DISTANCE) * n
         n = n + 1
@@ -125,16 +125,16 @@ Sub OrderNodeVertical()
 End Sub
 
 Sub ConnectStreight()
-    Dim C As Collection: Set C = New Collection
+    Dim c As Collection: Set c = New Collection
     Dim sh As Shape
     For Each sh In Selection.ShapeRange
-        C.Add sh
+        c.Add sh
     Next
     
     Dim sh2 As Shape
-    For i = 1 To C.Count - 1
-        Set sh = C.Item(i)
-        Set sh2 = C.Item(i + 1)
+    For i = 1 To c.Count - 1
+        Set sh = c.Item(i)
+        Set sh2 = c.Item(i + 1)
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
@@ -146,16 +146,16 @@ Sub ConnectStreight()
 End Sub
 
 Sub ConnectSplit()
-    Dim C As Collection: Set C = New Collection
+    Dim c As Collection: Set c = New Collection
     Dim sh As Shape
     For Each sh In Selection.ShapeRange
-        C.Add sh
+        c.Add sh
     Next
     
     Dim sh2 As Shape
-    For i = 2 To C.Count
-        Set sh = C.Item(1)
-        Set sh2 = C.Item(i)
+    For i = 2 To c.Count
+        Set sh = c.Item(1)
+        Set sh2 = c.Item(i)
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
@@ -167,16 +167,16 @@ Sub ConnectSplit()
 End Sub
 
 Sub ConnectMarge()
-    Dim C As Collection: Set C = New Collection
+    Dim c As Collection: Set c = New Collection
     Dim sh As Shape
     For Each sh In Selection.ShapeRange
-        C.Add sh
+        c.Add sh
     Next
     
     Dim sh2 As Shape
-    For i = 1 To C.Count - 1
-        Set sh = C.Item(i)
-        Set sh2 = C.Item(C.Count)
+    For i = 1 To c.Count - 1
+        Set sh = c.Item(i)
+        Set sh2 = c.Item(c.Count)
         
         Dim cn As Shape
         Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)

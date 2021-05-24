@@ -1,5 +1,37 @@
 Attribute VB_Name = "SchedulingFeature"
-Sub ReadDependency()
+Sub PlotSchedule()
+    Dim c As Collection
+    Set c = ReadDependency
+    Dim n As Node
+    
+    For Each n In c
+        ScheduleSheet.Range("B4").Offset(Val(n.TaskTitle), 0).Value = n.TaskTitle
+        ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
+        ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
+        ScheduleSheet.Range("D4").Offset(Val(n.TaskTitle), 0).Value = 1
+        ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).FormulaR1C1 = "=RC[-1]+RC[-2]"
+        tmpStr = ""
+        Dim n2 As Node
+        For Each n2 In n.GetDependency
+            tmpStr = tmpStr & "F" & Val(n2.TaskTitle) + 4 & ","
+        Next
+            
+        If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
+        If n.GetDependency.Count > 0 Then ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).Formula = "=MAX(" & tmpStr & ") + 1"
+        
+        tmpStr = ""
+        For Each n2 In n.GetDependency
+            tmpStr = tmpStr & Val(n2.TaskTitle) & ","
+        Next
+        If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
+        ScheduleSheet.Range("C4").Offset(Val(n.TaskTitle), 0).Value = tmpStr
+    Next
+    
+    Range("E4").Value = Int(Now())
+End Sub
+
+
+Function ReadDependency() As Collection
     'Requre Refference for Microsoft Scripting Runtime Library
     Dim nodes As Scripting.Dictionary
     Set nodes = New Scripting.Dictionary
@@ -28,14 +60,12 @@ Sub ReadDependency()
         End If
     Next
     
-    Dim C As Collection: Set C = New Collection
+    Dim c As Collection: Set c = New Collection
     For Each k In nodes.Keys
-        C.Add nodes.Item(k)
+        c.Add nodes.Item(k)
     Next
     
-    CSort C, "SortKey1"
-    
-    For Each n In C
-        n.DumpStatus
-    Next
-End Sub
+    CSort c, "SortKey1"
+
+    Set ReadDependency = c
+End Function
