@@ -1,4 +1,5 @@
 Attribute VB_Name = "Work"
+Option Explicit
 Sub TestFeature()
     Application.ScreenUpdating = False
     DrawSheet.Select

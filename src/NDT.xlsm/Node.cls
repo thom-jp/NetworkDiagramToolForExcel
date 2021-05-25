@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+Option Explicit
 'Require refference for Microsoft Scripting Runtime Library
 Public TaskTitle As String
 Public Dependency As Scripting.Dictionary
@@ -25,12 +26,32 @@ Public Property Get Self() As Object
     Set Self = Me
 End Property
 
+Public Property Get TaskNumber()
+    TaskNumber = Val(TaskTitle)
+End Property
+
+Public Property Get UnnumberedTaskTitle()
+    UnnumberedTaskTitle = Mid(TaskTitle, InStr(1, TaskTitle, ".") + 1)
+End Property
+
 Public Sub DumpStatus()
     Debug.Print "Å°" & Me.TaskTitle & " Depends on:"
+    Dim k As Variant
     For Each k In Dependency.Keys
         Debug.Print Dependency.Item(k).TaskTitle
     Next
 End Sub
+
+Public Function GetDependency() As Collection
+    Dim c As Collection
+    Set c = New Collection
+    Dim k As Variant
+    For Each k In Dependency.Keys
+        c.Add Dependency.Item(k)
+    Next
+    CollectionSort.CSort c, "SortKey1"
+    Set GetDependency = c
+End Function
 
 Private Sub Class_Terminate()
     Dependency.RemoveAll
