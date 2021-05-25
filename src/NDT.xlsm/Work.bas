@@ -4,8 +4,8 @@ Sub TestFeature()
     Application.ScreenUpdating = False
     DrawSheet.Select
     DrawFeature.RemoveAllShapse
-    DataSheet.Select
-    DataSheet.Range(Range("A4"), Range("A4").End(xlDown)).Select
+    TaskListSheet.Select
+    TaskListSheet.Range(Range("A4"), Range("A4").End(xlDown)).Select
     DrawFeature.DrawTaskAsNode
     DrawSheet.Select
     Application.ScreenUpdating = True

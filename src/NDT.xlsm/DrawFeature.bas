@@ -51,10 +51,13 @@ Sub DrawTaskAsNode()
     Dim x As Double: x = X_DISTANCE
     Dim y As Double: y = Y_DISTANCE
     Dim r As Range
+    Call CreateNodeShape(SIZE, x, y, "START")
+    x = x + SIZE + X_DISTANCE
     For Each r In Selection
         Call CreateNodeShape(SIZE, x, y, r.Value)
         x = x + SIZE + X_DISTANCE
     Next
+    Call CreateNodeShape(SIZE, x, y, "END")
 End Sub
 
 Sub RemoveAllShapse()
