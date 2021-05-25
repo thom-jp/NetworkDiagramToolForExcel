@@ -1,38 +1,44 @@
 Attribute VB_Name = "SchedulingFeature"
 Option Explicit
 Sub PlotSchedule()
-    ScheduleSheet.Range(Range("A4"), Range("A4").SpecialCells(xlLastCell)).ClearContents
+    ScheduleSheet.ClearAllData
     
-    Dim c As Collection
-    Set c = ReadDependency
     Dim n As Node
     
     Application.Calculation = xlCalculationManual
-    For Each n In c
-        ScheduleSheet.Range("A4").Offset(Val(n.TaskTitle), 0).Value = Val(n.TaskTitle)
-        ScheduleSheet.Range("B4").Offset(Val(n.TaskTitle), 0).Value = Mid(n.TaskTitle, InStr(1, n.TaskTitle, ".") + 1)
-        ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
-        ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
-        ScheduleSheet.Range("D4").Offset(Val(n.TaskTitle), 0).Value = 1
-        ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
-        Dim tmpStr As String
-        tmpStr = ""
+    For Each n In ReadDependency
+        With ScheduleSheet.DataStartCell
+            .Offset(n.TaskNumber, ColOffset.Number).Value = n.TaskNumber
+            .Offset(n.TaskNumber, ColOffset.TaskName).Value = n.UnnumberedTaskTitle
+            .Offset(n.TaskNumber, ColOffset.PlannedStartDay).NumberFormatLocal = "yyyy/m/d"
+            .Offset(n.TaskNumber, ColOffset.PlannedEndDay).NumberFormatLocal = "yyyy/m/d"
+            .Offset(n.TaskNumber, ColOffset.PlannedEndDay).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
+            .Offset(n.TaskNumber, ColOffset.Duration).Value = 1
+        End With
+        
+        Dim tmpStr As String: tmpStr = ""
+        
         Dim n2 As Node
         For Each n2 In n.GetDependency
-            tmpStr = tmpStr & "F" & Val(n2.TaskTitle) + 4 & ","
+            tmpStr = tmpStr & "F" & n2.TaskNumber + ScheduleSheet.DataStartCell.Row & ","
         Next
             
-        If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
-        If n.GetDependency.Count > 0 Then ScheduleSheet.Range("E4").Offset(Val(n.TaskTitle), 0).Formula = "=WORKDAY(MAX(" & tmpStr & "),1,Holidays!A:A)"
+        If Len(tmpStr) > 0 Then
+            tmpStr = Left(tmpStr, Len(tmpStr) - 1)
+        End If
+        
+        If n.GetDependency.Count > 0 Then
+            ScheduleSheet.DataStartCell.Offset(n.TaskNumber, ColOffset.PlannedStartDay).Formula = "=WORKDAY(MAX(" & tmpStr & "),1,Holidays!A:A)"
+        End If
         
         tmpStr = ""
         For Each n2 In n.GetDependency
             tmpStr = tmpStr & Val(n2.TaskTitle) & ","
         Next
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
-        ScheduleSheet.Range("C4").Offset(Val(n.TaskTitle), 0).Value = tmpStr
+        ScheduleSheet.DataStartCell.Offset(n.TaskNumber, ColOffset.Dependency).Value = tmpStr
     Next
-    Range("E4").Value = Int(Now())
+    ScheduleSheet.DataStartCell.Offset(0, ColOffset.PlannedStartDay).Value = Int(Now())
     Application.Calculation = xlCalculationAutomatic
 End Sub
 

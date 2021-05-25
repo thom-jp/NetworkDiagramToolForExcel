@@ -26,6 +26,14 @@ Public Property Get Self() As Object
     Set Self = Me
 End Property
 
+Public Property Get TaskNumber()
+    TaskNumber = Val(TaskTitle)
+End Property
+
+Public Property Get UnnumberedTaskTitle()
+    UnnumberedTaskTitle = Mid(TaskTitle, InStr(1, TaskTitle, ".") + 1)
+End Property
+
 Public Sub DumpStatus()
     Debug.Print "Å°" & Me.TaskTitle & " Depends on:"
     Dim k As Variant
