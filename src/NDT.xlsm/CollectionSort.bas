@@ -1,4 +1,5 @@
 Attribute VB_Name = "CollectionSort"
+Option Explicit
 Function GetSortKeyByName(procName As String, V As Variant) As Variant
     GetSortKeyByName = CallByName(New SortKeys, procName, VbMethod, V)
 End Function

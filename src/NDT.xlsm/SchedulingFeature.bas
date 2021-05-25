@@ -1,4 +1,5 @@
 Attribute VB_Name = "SchedulingFeature"
+Option Explicit
 Sub PlotSchedule()
     ScheduleSheet.Range(Range("A4"), Range("A4").SpecialCells(xlLastCell)).ClearContents
     
@@ -14,6 +15,7 @@ Sub PlotSchedule()
         ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).NumberFormatLocal = "yyyy/m/d"
         ScheduleSheet.Range("D4").Offset(Val(n.TaskTitle), 0).Value = 1
         ScheduleSheet.Range("F4").Offset(Val(n.TaskTitle), 0).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
+        Dim tmpStr As String
         tmpStr = ""
         Dim n2 As Node
         For Each n2 In n.GetDependency
@@ -55,8 +57,9 @@ Function ReadDependency() As Collection
         ' This magic number -2 is just taken from an inspection result.
         ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
         If sh.Type = msoAutoShape And sh.AutoShapeType = -2 Then
-            
+            Dim bcs As String
             bcs = Replace(sh.ConnectorFormat.BeginConnectedShape.TextFrame2.TextRange.Text, vbLf, "")
+            Dim ecs As String
             ecs = Replace(sh.ConnectorFormat.EndConnectedShape.TextFrame2.TextRange.Text, vbLf, "")
             
             Set n = nodes.Item(ecs)
@@ -65,6 +68,7 @@ Function ReadDependency() As Collection
     Next
     
     Dim c As Collection: Set c = New Collection
+    Dim k As Variant
     For Each k In nodes.Keys
         c.Add nodes.Item(k)
     Next

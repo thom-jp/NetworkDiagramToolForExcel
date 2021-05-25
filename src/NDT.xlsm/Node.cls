@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+Option Explicit
 'Require refference for Microsoft Scripting Runtime Library
 Public TaskTitle As String
 Public Dependency As Scripting.Dictionary
@@ -27,6 +28,7 @@ End Property
 
 Public Sub DumpStatus()
     Debug.Print "Å°" & Me.TaskTitle & " Depends on:"
+    Dim k As Variant
     For Each k In Dependency.Keys
         Debug.Print Dependency.Item(k).TaskTitle
     Next
@@ -35,6 +37,7 @@ End Sub
 Public Function GetDependency() As Collection
     Dim c As Collection
     Set c = New Collection
+    Dim k As Variant
     For Each k In Dependency.Keys
         c.Add Dependency.Item(k)
     Next
