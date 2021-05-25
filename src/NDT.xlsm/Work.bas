@@ -5,7 +5,7 @@ Sub TestFeature()
     DrawSheet.Select
     DrawFeature.RemoveAllShapse
     DataSheet.Select
-    DataSheet.Range(Range("c4"), Range("c4").End(xlDown)).Select
+    DataSheet.Range(Range("A4"), Range("A4").End(xlDown)).Select
     DrawFeature.DrawTaskAsNode
     DrawSheet.Select
     Application.ScreenUpdating = True
