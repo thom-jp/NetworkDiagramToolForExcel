@@ -42,14 +42,14 @@ Public Sub DumpStatus()
     Next
 End Sub
 
-Public Function GetDependency() As Collection
-    Dim c As Collection
-    Set c = New Collection
+Public Function GetDependency() As Nodes
+    Dim c As Nodes
+    Set c = New Nodes
     Dim k As Variant
     For Each k In Dependency.Keys
-        c.Add Dependency.Item(k)
+        c.AddNode Dependency.Item(k)
     Next
-    CollectionSort.CSort c, "SortKey1"
+    c.Sort
     Set GetDependency = c
 End Function
 

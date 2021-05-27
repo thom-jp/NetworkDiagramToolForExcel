@@ -13,7 +13,7 @@ Private Sub Class_Initialize()
     Set internalCollection = New Collection
 End Sub
 
-Public Sub AddNode(n As Node, Optional key As String, Optional Before, Optional After)
+Public Sub AddNode(n As Node, Optional key, Optional Before, Optional After)
     internalCollection.Add n, key, Before, After
 End Sub
 
@@ -25,6 +25,10 @@ End Function
 Public Function NewEnum() As IEnumVARIANT
 Attribute NewEnum.VB_UserMemId = -4
          Set NewEnum = internalCollection.[_NewEnum]
+End Function
+
+Public Function Count() As Long
+    Count = internalCollection.Count
 End Function
 
 Public Function Exists(ByVal key As String) As Boolean
