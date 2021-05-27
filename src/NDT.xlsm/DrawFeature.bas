@@ -22,6 +22,7 @@ Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     s.TextFrame2.WordWrap = msoFalse
     s.TextFrame.HorizontalOverflow = xlOartHorizontalOverflowOverflow
     s.TextFrame.VerticalOverflow = xlOartVerticalOverflowOverflow
+    Set CreateNodeShape = s
 End Function
 Function OptimizeTextReturn(original_text, normal_width) As String
     Dim w As Integer: w = normal_width
