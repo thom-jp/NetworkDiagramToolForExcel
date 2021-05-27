@@ -47,30 +47,30 @@ Public Sub Sort()
         For j = internalCollection.Count To i Step -1
             Dim n As Node
             If Val(internalCollection(i).TaskTitle) > Val(internalCollection(j).TaskTitle) Then
-                    CollectionSwap internalCollection, i, j
+                    SwapItems i, j
             End If
         Next j
     Next i
 End Sub
 
-Private Sub CollectionSwap(c As Collection, Index1 As Long, Index2 As Long)
+Private Sub SwapItems(Index1 As Long, Index2 As Long)
     Dim Item1 As Variant, Item2 As Variant
     
-    If IsObject(c.Item(Index1)) Then
-        Set Item1 = c.Item(Index1)
+    If IsObject(internalCollection.Item(Index1)) Then
+        Set Item1 = internalCollection.Item(Index1)
     Else
-        Let Item1 = c.Item(Index1)
+        Let Item1 = internalCollection.Item(Index1)
     End If
     
-    If IsObject(c.Item(Index2)) Then
-        Set Item2 = c.Item(Index2)
+    If IsObject(internalCollection.Item(Index2)) Then
+        Set Item2 = internalCollection.Item(Index2)
     Else
-        Let Item2 = c.Item(Index2)
+        Let Item2 = internalCollection.Item(Index2)
     End If
     
-    c.Add Item1, After:=Index2
-    c.Remove Index2
-    c.Add Item2, After:=Index1
-    c.Remove Index1
+    internalCollection.Add Item1, After:=Index2
+    internalCollection.Remove Index2
+    internalCollection.Add Item2, After:=Index1
+    internalCollection.Remove Index1
 End Sub
 
