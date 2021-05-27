@@ -240,14 +240,21 @@ Sub ConnectMarge()
 End Sub
 
 Sub NumberingNodes()
-    Dim n As Integer: n = 0
+    Dim i As Integer: i = 0
     Dim sh As Shape
+    Dim nn As Nodes: Set nn = TaskListSheet.GetTaskListAsNodes
+    Dim n As Node
     For Each sh In Selection.ShapeRange
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
             Dim tmpTaskTitle As String: tmpTaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
-            tmpTaskTitle = n & "." & RemoveNumberPrefix(tmpTaskTitle)
+            tmpTaskTitle = i & "." & RemoveNumberPrefix(tmpTaskTitle)
             sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
-            n = n + 1
+            For Each n In nn
+                If sh.Name = n.ShapeObjectName Then
+                    n.TaskListRange.Offset(0, -1).Value = CLng(i)
+                End If
+            Next
+            i = i + 1
         End If
     Next
 End Sub
@@ -260,6 +267,11 @@ Sub DeNumberingAllNodes()
             tmpTaskTitle = RemoveNumberPrefix(tmpTaskTitle)
             sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
         End If
+    Next
+
+    Dim n As Node
+    For Each n In TaskListSheet.GetTaskListAsNodes
+        n.TaskListRange.Offset(0, -1).Value = ""
     Next
 End Sub
 

@@ -10,9 +10,12 @@ Attribute VB_Exposed = True
 Public Function GetTaskListAsNodes() As Object
     Dim result As Nodes: Set result = New Nodes
     Dim r As Range
-    For Each r In Range(Range("A4"), Range("A4").End(xlDown))
+    For Each r In Range(Range("B4"), Range("B" & TaskListSheet.Rows.Count).End(xlUp))
         With New Node
             .TaskTitle = r.Value
+            If IsNumeric(CStr(r.Offset(0, -1).Value)) Then
+                .TaskTitle = r.Offset(0, -1).Value & "." & .TaskTitle
+            End If
             .ShapeObjectName = CStr(r.Offset(0, 1).Value)
             Set .TaskListRange = r
             result.AddNode .Self
