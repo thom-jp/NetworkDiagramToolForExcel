@@ -90,17 +90,17 @@ Sub PlotSchedule()
 End Sub
 
 
-Function ReadDependency() As Collection
+Private Function ReadDependency() As Nodes
     'Requre Refference for Microsoft Scripting Runtime Library
-    Dim Nodes As Scripting.Dictionary
-    Set Nodes = New Scripting.Dictionary
+    Dim c As Nodes
+    Set c = New Nodes
     
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
             With New Node
                 .TaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
-                Nodes.Add .TaskTitle, .Self
+                c.AddNode .Self, .TaskTitle
             End With
         End If
     Next
@@ -115,18 +115,12 @@ Function ReadDependency() As Collection
             Dim ecs As String
             ecs = Replace(sh.ConnectorFormat.EndConnectedShape.TextFrame2.TextRange.Text, vbLf, "")
             
-            Set n = Nodes.Item(ecs)
-            n.AddDependency Nodes.Item(bcs)
+            Set n = c.Item(ecs)
+            n.AddDependency c.Item(bcs)
         End If
     Next
     
-    Dim c As Collection: Set c = New Collection
-    Dim k As Variant
-    For Each k In Nodes.Keys
-        c.Add Nodes.Item(k)
-    Next
-    
-    CSort c, "SortKey1"
+    c.Sort
 
     Set ReadDependency = c
 End Function

@@ -19,7 +19,7 @@ End Sub
 
 Public Function Item(Index) As Node
 Attribute Item.VB_UserMemId = 0
-    Item = internalCollection.Item(Index)
+    Set Item = internalCollection.Item(Index)
 End Function
 
 Public Function NewEnum() As IEnumVARIANT
