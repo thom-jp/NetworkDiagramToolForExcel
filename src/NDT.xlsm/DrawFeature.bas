@@ -78,6 +78,35 @@ Sub RemoveAllShapse()
     Next
 End Sub
 
+Sub RemoveUnregisteredOvals()
+    Dim ov As Oval
+    Dim n As Node
+    Dim nn As Nodes: Set nn = TaskListSheet.GetTaskListAsNodes
+    For Each ov In DrawSheet.Ovals
+        For Each n In nn
+            If ov.Name = n.ShapeObjectName Then GoTo Continue
+        Next
+        ov.Delete
+Continue:
+    Next
+    RemoveDisconnection
+End Sub
+
+Private Sub RemoveDisconnection()
+    Dim sh As Shape
+    For Each sh In DrawSheet.Shapes
+        ' This magic number -2 is just taken from an inspection result.
+        ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
+        If sh.Type = msoAutoShape And sh.AutoShapeType = -2 Then
+            If sh.ConnectorFormat.BeginConnected And sh.ConnectorFormat.EndConnected Then
+                'Do Nothing
+            Else
+                sh.Delete
+            End If
+        End If
+    Next
+End Sub
+
 Sub FindDisconnection()
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
