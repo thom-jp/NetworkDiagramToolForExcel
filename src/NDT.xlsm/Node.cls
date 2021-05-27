@@ -10,11 +10,24 @@ Attribute VB_Exposed = False
 Option Explicit
 'Require refference for Microsoft Scripting Runtime Library
 Public TaskTitle As String
+Public ShapeObjectName As String
+Public TaskListRange As Range
 Public Dependency As Scripting.Dictionary
 
 Private Sub Class_Initialize()
     Set Dependency = New Scripting.Dictionary
 End Sub
+
+Public Function FindShape() As Shape
+    On Error GoTo Err_Handler
+    If ShapeObjectName <> "" Then
+        Set FindShape = DrawSheet.Shapes(ShapeObjectName)
+    End If
+    On Error GoTo 0
+Exit Function
+Err_Handler:
+    Set FindShape = Nothing
+End Function
 
 Public Sub AddDependency(n As Node)
     If Not Dependency.Exists(n.TaskTitle) Then
@@ -42,14 +55,14 @@ Public Sub DumpStatus()
     Next
 End Sub
 
-Public Function GetDependency() As Collection
-    Dim c As Collection
-    Set c = New Collection
+Public Function GetDependency() As Nodes
+    Dim c As Nodes
+    Set c = New Nodes
     Dim k As Variant
     For Each k In Dependency.Keys
-        c.Add Dependency.Item(k)
+        c.AddNode Dependency.Item(k)
     Next
-    CollectionSort.CSort c, "SortKey1"
+    c.Sort
     Set GetDependency = c
 End Function
 

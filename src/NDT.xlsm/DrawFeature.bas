@@ -7,6 +7,27 @@ Const X_OFFSET = 50
 Const Y_OFFSET = 150
 Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
 
+Sub DrawTaskAsNode()
+    Dim x As Double: x = X_DISTANCE
+    Dim y As Double: y = Y_DISTANCE
+    Dim n As Node
+    'Call CreateNodeShape(SIZE, x, y, "START")
+    x = x + SIZE + X_DISTANCE
+    For Each n In TaskListSheet.GetTaskListAsNodes
+        Dim sh As Shape
+        Set sh = n.FindShape
+        If sh Is Nothing Then
+            n.ShapeObjectName = CreateNodeShape(SIZE, x, y, n.TaskTitle).Name
+            n.TaskListRange.Offset(0, 1).Value = n.ShapeObjectName
+            x = x + SIZE + X_DISTANCE
+        Else
+            sh.TextFrame2.TextRange.Text = OptimizeTextReturn(n.TaskTitle, 5)
+        End If
+        
+    Next
+    'Call CreateNodeShape(SIZE, x, y, "END")
+End Sub
+
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
     Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x + X_OFFSET, pos_y + Y_OFFSET, SIZE, SIZE)
@@ -22,7 +43,9 @@ Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     s.TextFrame2.WordWrap = msoFalse
     s.TextFrame.HorizontalOverflow = xlOartHorizontalOverflowOverflow
     s.TextFrame.VerticalOverflow = xlOartVerticalOverflowOverflow
+    Set CreateNodeShape = s
 End Function
+
 Function OptimizeTextReturn(original_text, normal_width) As String
     Dim w As Integer: w = normal_width
     Dim h As Integer: h = Round(Len(original_text) / normal_width + 0.4, 0)
@@ -46,25 +69,40 @@ Function OptimizeTextReturn(original_text, normal_width) As String
     OptimizeTextReturn = result_string
 End Function
 
-
-Sub DrawTaskAsNode()
-    Dim x As Double: x = X_DISTANCE
-    Dim y As Double: y = Y_DISTANCE
-    Dim r As Range
-    Call CreateNodeShape(SIZE, x, y, "START")
-    x = x + SIZE + X_DISTANCE
-    For Each r In Selection
-        Call CreateNodeShape(SIZE, x, y, r.Value)
-        x = x + SIZE + X_DISTANCE
-    Next
-    Call CreateNodeShape(SIZE, x, y, "END")
-End Sub
-
 Sub RemoveAllShapse()
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         If sh.Type <> msoFormControl Then
             sh.Delete
+        End If
+    Next
+End Sub
+
+Sub RemoveUnregisteredOvals()
+    Dim ov As Oval
+    Dim n As Node
+    Dim nn As Nodes: Set nn = TaskListSheet.GetTaskListAsNodes
+    For Each ov In DrawSheet.Ovals
+        For Each n In nn
+            If ov.Name = n.ShapeObjectName Then GoTo Continue
+        Next
+        ov.Delete
+Continue:
+    Next
+    RemoveDisconnection
+End Sub
+
+Private Sub RemoveDisconnection()
+    Dim sh As Shape
+    For Each sh In DrawSheet.Shapes
+        ' This magic number -2 is just taken from an inspection result.
+        ' It's not yet logically confirmed that -2 always indicate the connector in this usage.
+        If sh.Type = msoAutoShape And sh.AutoShapeType = -2 Then
+            If sh.ConnectorFormat.BeginConnected And sh.ConnectorFormat.EndConnected Then
+                'Do Nothing
+            Else
+                sh.Delete
+            End If
         End If
     Next
 End Sub
@@ -202,14 +240,21 @@ Sub ConnectMarge()
 End Sub
 
 Sub NumberingNodes()
-    Dim n As Integer: n = 0
+    Dim i As Integer: i = 0
     Dim sh As Shape
+    Dim nn As Nodes: Set nn = TaskListSheet.GetTaskListAsNodes
+    Dim n As Node
     For Each sh In Selection.ShapeRange
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
             Dim tmpTaskTitle As String: tmpTaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
-            tmpTaskTitle = n & "." & RemoveNumberPrefix(tmpTaskTitle)
+            tmpTaskTitle = i & "." & RemoveNumberPrefix(tmpTaskTitle)
             sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
-            n = n + 1
+            For Each n In nn
+                If sh.Name = n.ShapeObjectName Then
+                    n.TaskListRange.Offset(0, -1).Value = CLng(i)
+                End If
+            Next
+            i = i + 1
         End If
     Next
 End Sub
@@ -222,6 +267,11 @@ Sub DeNumberingAllNodes()
             tmpTaskTitle = RemoveNumberPrefix(tmpTaskTitle)
             sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
         End If
+    Next
+
+    Dim n As Node
+    For Each n In TaskListSheet.GetTaskListAsNodes
+        n.TaskListRange.Offset(0, -1).Value = ""
     Next
 End Sub
 

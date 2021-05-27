@@ -2,31 +2,37 @@ Attribute VB_Name = "Work"
 Option Explicit
 Sub TestFeature()
     Application.ScreenUpdating = False
-    DrawSheet.Select
-    DrawFeature.RemoveAllShapse
-    TaskListSheet.Select
-    TaskListSheet.Range(Range("A4"), Range("A4").End(xlDown)).Select
+    DrawFeature.RemoveUnregisteredOvals
     DrawFeature.DrawTaskAsNode
     DrawSheet.Select
     Application.ScreenUpdating = True
 End Sub
 
-Sub testNodeClassBehavior()
+Sub TestNodesCollection()
+    Dim nn As Nodes
+    Set nn = New Nodes
+    
+    Dim r As Range
+    Dim i As Integer
+    For Each r In Selection
+        With New Node
+            .TaskTitle = WorksheetFunction.RandBetween(1, 10000) & "." & r.Value
+            nn.AddNode .Self, CStr(i)
+            i = i + 1
+        End With
+    Next
+    
+    Debug.Print nn.Exists("1")
+    Debug.Print nn.Exists("10000")
+    
     Dim n As Node
-    Set n = New Node
-    n.TaskTitle = "Hoge"
+    For Each n In nn
+        Debug.Print n.TaskTitle
+    Next
     
-    Dim n2 As Node
-    Set n2 = New Node
-    n2.TaskTitle = "Fuga"
-    
-    Dim n3 As Node
-    Set n3 = New Node
-    n3.TaskTitle = "Piyo"
-    
-    n.AddDependency n2
-    n.AddDependency n3
-    
-    n.DumpStatus
-    
+    Debug.Print String(10, "-")
+    nn.Sort
+    For Each n In nn
+        Debug.Print n.TaskTitle
+    Next
 End Sub
