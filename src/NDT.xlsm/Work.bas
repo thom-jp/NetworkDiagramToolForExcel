@@ -2,10 +2,8 @@ Attribute VB_Name = "Work"
 Option Explicit
 Sub TestFeature()
     Application.ScreenUpdating = False
-    DrawSheet.Select
-    DrawFeature.RemoveAllShapse
-    TaskListSheet.Select
-    TaskListSheet.Range(Range("A4"), Range("A4").End(xlDown)).Select
+    'DrawSheet.Select
+    'DrawFeature.RemoveAllShapse
     DrawFeature.DrawTaskAsNode
     DrawSheet.Select
     Application.ScreenUpdating = True

@@ -10,14 +10,22 @@ Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
 Sub DrawTaskAsNode()
     Dim x As Double: x = X_DISTANCE
     Dim y As Double: y = Y_DISTANCE
-    Dim r As Range
-    Call CreateNodeShape(SIZE, x, y, "START")
+    Dim n As Node
+    'Call CreateNodeShape(SIZE, x, y, "START")
     x = x + SIZE + X_DISTANCE
-    For Each r In Selection
-        Call CreateNodeShape(SIZE, x, y, r.Value)
-        x = x + SIZE + X_DISTANCE
+    For Each n In TaskListSheet.GetTaskListAsNodes
+        Dim sh As Shape
+        Set sh = n.FindShape
+        If sh Is Nothing Then
+            n.ShapeObjectName = CreateNodeShape(SIZE, x, y, n.TaskTitle).Name
+            n.TaskListRange.Offset(0, 1).Value = n.ShapeObjectName
+            x = x + SIZE + X_DISTANCE
+        Else
+            sh.TextFrame2.TextRange.Text = OptimizeTextReturn(n.TaskTitle, 5)
+        End If
+        
     Next
-    Call CreateNodeShape(SIZE, x, y, "END")
+    'Call CreateNodeShape(SIZE, x, y, "END")
 End Sub
 
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
