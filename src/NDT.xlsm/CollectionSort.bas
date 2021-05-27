@@ -30,8 +30,8 @@ Sub CollectionSwap(c As Collection, Index1 As Long, Index2 As Long)
         Let Item2 = c.Item(Index2)
     End If
     
-    c.Add Item1, after:=Index2
+    c.Add Item1, After:=Index2
     c.Remove Index2
-    c.Add Item2, after:=Index1
+    c.Add Item2, After:=Index1
     c.Remove Index1
 End Sub

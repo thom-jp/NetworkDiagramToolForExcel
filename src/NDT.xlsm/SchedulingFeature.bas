@@ -92,15 +92,15 @@ End Sub
 
 Function ReadDependency() As Collection
     'Requre Refference for Microsoft Scripting Runtime Library
-    Dim nodes As Scripting.Dictionary
-    Set nodes = New Scripting.Dictionary
+    Dim Nodes As Scripting.Dictionary
+    Set Nodes = New Scripting.Dictionary
     
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
             With New Node
                 .TaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
-                nodes.Add .TaskTitle, .Self
+                Nodes.Add .TaskTitle, .Self
             End With
         End If
     Next
@@ -115,15 +115,15 @@ Function ReadDependency() As Collection
             Dim ecs As String
             ecs = Replace(sh.ConnectorFormat.EndConnectedShape.TextFrame2.TextRange.Text, vbLf, "")
             
-            Set n = nodes.Item(ecs)
-            n.AddDependency nodes.Item(bcs)
+            Set n = Nodes.Item(ecs)
+            n.AddDependency Nodes.Item(bcs)
         End If
     Next
     
     Dim c As Collection: Set c = New Collection
     Dim k As Variant
-    For Each k In nodes.Keys
-        c.Add nodes.Item(k)
+    For Each k In Nodes.Keys
+        c.Add Nodes.Item(k)
     Next
     
     CSort c, "SortKey1"

@@ -11,22 +11,20 @@ Sub TestFeature()
     Application.ScreenUpdating = True
 End Sub
 
-Sub testNodeClassBehavior()
+Sub TestNodesCollection()
+    Dim nn As Nodes
+    Set nn = New Nodes
+    
+    Dim r As Range
+    For Each r In Selection
+        With New Node
+            .TaskTitle = r.Value
+            nn.AddNode .Self
+        End With
+    Next
+    
     Dim n As Node
-    Set n = New Node
-    n.TaskTitle = "Hoge"
-    
-    Dim n2 As Node
-    Set n2 = New Node
-    n2.TaskTitle = "Fuga"
-    
-    Dim n3 As Node
-    Set n3 = New Node
-    n3.TaskTitle = "Piyo"
-    
-    n.AddDependency n2
-    n.AddDependency n3
-    
-    n.DumpStatus
-    
+    For Each n In nn
+        Debug.Print n.TaskTitle
+    Next
 End Sub

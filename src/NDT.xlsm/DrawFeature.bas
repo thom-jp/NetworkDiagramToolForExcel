@@ -7,6 +7,19 @@ Const X_OFFSET = 50
 Const Y_OFFSET = 150
 Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
 
+Sub DrawTaskAsNode()
+    Dim x As Double: x = X_DISTANCE
+    Dim y As Double: y = Y_DISTANCE
+    Dim r As Range
+    Call CreateNodeShape(SIZE, x, y, "START")
+    x = x + SIZE + X_DISTANCE
+    For Each r In Selection
+        Call CreateNodeShape(SIZE, x, y, r.Value)
+        x = x + SIZE + X_DISTANCE
+    Next
+    Call CreateNodeShape(SIZE, x, y, "END")
+End Sub
+
 Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
     Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x + X_OFFSET, pos_y + Y_OFFSET, SIZE, SIZE)
@@ -24,6 +37,7 @@ Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     s.TextFrame.VerticalOverflow = xlOartVerticalOverflowOverflow
     Set CreateNodeShape = s
 End Function
+
 Function OptimizeTextReturn(original_text, normal_width) As String
     Dim w As Integer: w = normal_width
     Dim h As Integer: h = Round(Len(original_text) / normal_width + 0.4, 0)
@@ -46,20 +60,6 @@ Function OptimizeTextReturn(original_text, normal_width) As String
     
     OptimizeTextReturn = result_string
 End Function
-
-
-Sub DrawTaskAsNode()
-    Dim x As Double: x = X_DISTANCE
-    Dim y As Double: y = Y_DISTANCE
-    Dim r As Range
-    Call CreateNodeShape(SIZE, x, y, "START")
-    x = x + SIZE + X_DISTANCE
-    For Each r In Selection
-        Call CreateNodeShape(SIZE, x, y, r.Value)
-        x = x + SIZE + X_DISTANCE
-    Next
-    Call CreateNodeShape(SIZE, x, y, "END")
-End Sub
 
 Sub RemoveAllShapse()
     Dim sh As Shape
