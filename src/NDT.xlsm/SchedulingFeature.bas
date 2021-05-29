@@ -85,8 +85,11 @@ Sub PlotSchedule()
         Next
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
         ScheduleSheet.Cells(tmpRow, ColOffset.Dependency + 1).Value = tmpStr
+
+        If n.UnnumberedTaskTitle = "START" Then
+            ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).Value = Int(Now())
+        End If
     Next
-    ScheduleSheet.Cells(ScheduleSheet.DataStartCell.Row, ColOffset.PlannedStartDay + 1).Value = Int(Now())
     Application.Calculation = xlCalculationAutomatic
 End Sub
 
