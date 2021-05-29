@@ -49,25 +49,26 @@ Sub PlotSchedule()
         Exit Sub
     End If
 
-    ScheduleSheet.ClearAllData
+    ScheduleSheet.ClearSchedule
     Dim n As Node
     
     Application.Calculation = xlCalculationManual
     For Each n In ReadDependency
-        With ScheduleSheet.DataStartCell
-            .Offset(n.TaskNumber, ColOffset.Number).Value = n.TaskNumber
-            .Offset(n.TaskNumber, ColOffset.TaskName).Value = n.UnnumberedTaskTitle
-            .Offset(n.TaskNumber, ColOffset.PlannedStartDay).NumberFormatLocal = "yyyy/m/d"
-            .Offset(n.TaskNumber, ColOffset.PlannedEndDay).NumberFormatLocal = "yyyy/m/d"
-            .Offset(n.TaskNumber, ColOffset.PlannedEndDay).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
-            .Offset(n.TaskNumber, ColOffset.Duration).Value = 1
-        End With
+        Dim tmpRow As Long
+        tmpRow = ScheduleSheet.FindRowByShapeName(n.ShapeObjectName)
+        
+        ScheduleSheet.Cells(tmpRow, ColOffset.Number + 1).Value = n.TaskNumber
+        ScheduleSheet.Cells(tmpRow, ColOffset.TaskName + 1).Value = n.UnnumberedTaskTitle
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).NumberFormatLocal = "yyyy/m/d"
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).NumberFormatLocal = "yyyy/m/d"
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
         
         Dim tmpStr As String: tmpStr = ""
         
         Dim n2 As Node
         For Each n2 In n.GetDependency
-            tmpStr = tmpStr & "F" & n2.TaskNumber + ScheduleSheet.DataStartCell.Row & ","
+            Dim tmpRow2 As String: tmpRow2 = ScheduleSheet.FindRowByShapeName(n2.ShapeObjectName)
+            tmpStr = tmpStr & "F" & tmpRow2 & ","
         Next
             
         If Len(tmpStr) > 0 Then
@@ -75,7 +76,7 @@ Sub PlotSchedule()
         End If
         
         If n.GetDependency.Count > 0 Then
-            ScheduleSheet.DataStartCell.Offset(n.TaskNumber, ColOffset.PlannedStartDay).Formula = "=WORKDAY(MAX(" & tmpStr & "),1,Holidays!A:A)"
+            ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).Formula = "=WORKDAY(MAX(" & tmpStr & "),1,Holidays!A:A)"
         End If
         
         tmpStr = ""
@@ -83,9 +84,9 @@ Sub PlotSchedule()
             tmpStr = tmpStr & Val(n2.TaskTitle) & ","
         Next
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
-        ScheduleSheet.DataStartCell.Offset(n.TaskNumber, ColOffset.Dependency).Value = tmpStr
+        ScheduleSheet.Cells(tmpRow, ColOffset.Dependency + 1).Value = tmpStr
     Next
-    ScheduleSheet.DataStartCell.Offset(0, ColOffset.PlannedStartDay).Value = Int(Now())
+    ScheduleSheet.Cells(ScheduleSheet.DataStartCell.Row, ColOffset.PlannedStartDay + 1).Value = Int(Now())
     Application.Calculation = xlCalculationAutomatic
 End Sub
 
@@ -100,6 +101,7 @@ Private Function ReadDependency() As Nodes
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
             With New Node
                 .TaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
+                .ShapeObjectName = sh.Name
                 c.AddNode .Self, .TaskTitle
             End With
         End If

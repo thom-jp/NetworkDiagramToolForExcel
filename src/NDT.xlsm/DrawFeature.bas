@@ -13,12 +13,12 @@ Sub DrawTaskAsNode()
     Dim n As Node
     'Call CreateNodeShape(SIZE, x, y, "START")
     x = x + SIZE + X_DISTANCE
-    For Each n In TaskListSheet.GetTaskListAsNodes
+    For Each n In ScheduleSheet.GetTaskListAsNodes
         Dim sh As Shape
         Set sh = n.FindShape
         If sh Is Nothing Then
             n.ShapeObjectName = CreateNodeShape(SIZE, x, y, n.TaskTitle).Name
-            n.TaskListRange.Offset(0, 1).Value = n.ShapeObjectName
+            n.TaskListRange.Offset(0, 5).Value = n.ShapeObjectName
             x = x + SIZE + X_DISTANCE
         Else
             sh.TextFrame2.TextRange.Text = OptimizeTextReturn(n.TaskTitle, 5)
@@ -81,7 +81,7 @@ End Sub
 Sub RemoveUnregisteredOvals()
     Dim ov As Oval
     Dim n As Node
-    Dim nn As Nodes: Set nn = TaskListSheet.GetTaskListAsNodes
+    Dim nn As Nodes: Set nn = ScheduleSheet.GetTaskListAsNodes
     For Each ov In DrawSheet.Ovals
         For Each n In nn
             If ov.Name = n.ShapeObjectName Then GoTo Continue
@@ -242,7 +242,7 @@ End Sub
 Sub NumberingNodes()
     Dim i As Integer: i = 0
     Dim sh As Shape
-    Dim nn As Nodes: Set nn = TaskListSheet.GetTaskListAsNodes
+    Dim nn As Nodes: Set nn = ScheduleSheet.GetTaskListAsNodes
     Dim n As Node
     For Each sh In Selection.ShapeRange
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
