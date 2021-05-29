@@ -59,9 +59,9 @@ Sub PlotSchedule()
         
         ScheduleSheet.Cells(tmpRow, ColOffset.Number + 1).Value = n.TaskNumber
         ScheduleSheet.Cells(tmpRow, ColOffset.TaskName + 1).Value = n.UnnumberedTaskTitle
-        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).NumberFormatLocal = "yyyy/m/d"
-        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).NumberFormatLocal = "yyyy/m/d"
-        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).NumberFormatLocal = "yyyy/m/d (aaa)"
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).NumberFormatLocal = "yyyy/m/d (aaa)"
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).FormulaR1C1 = "=IF(ISBLANK(RC[4]),WORKDAY(RC[-1],RC[-2],Holidays!C[-5]),RC[-1]+7-WEEKDAY(RC[-1]+7-RC[4]))"
         
         Dim tmpStr As String: tmpStr = ""
         
