@@ -75,8 +75,11 @@ Sub PlotSchedule()
             tmpStr = Left(tmpStr, Len(tmpStr) - 1)
         End If
         
+        Dim tmpStartOffsetCell As String
+        tmpStartOffsetCell = "I" & tmpRow
+        
         If n.GetDependency.Count > 0 Then
-            ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).Formula = "=WORKDAY(MAX(" & tmpStr & "),1,Holidays!A:A)"
+            ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).Formula = "=WORKDAY(MAX(" & tmpStr & ")," & tmpStartOffsetCell & " ,Holidays!A:A)"
         End If
         
         tmpStr = ""
