@@ -38,6 +38,37 @@ Function CheckDisconnection() As Boolean
     CheckDisconnection = True
 End Function
 
+Function CheckAllShapeNodeExists() As Boolean
+    Let CheckAllShapeNodeExists = False
+    With ScheduleSheet
+        'Last Used Row Check
+        If ScheduleSheet.LastUsedRow < 4 Then
+            Exit Function
+        End If
+
+        'Count Check
+        Dim r As Range
+        Dim rr As Range: Set rr = .Range("G4:G" & .LastUsedRow)
+        If Not DrawSheet.Ovals.Count = rr.Count Then
+            Exit Function
+        End If
+        
+        'Exist Check
+        For Each r In rr
+            If r.Value = "" Then
+                Exit Function
+            End If
+            On Error GoTo Error_Handler
+                Call DrawSheet.Ovals(r.Value)
+            On Error GoTo 0
+        Next
+    End With
+    CheckAllShapeNodeExists = True
+Exit Function
+Error_Handler:
+    CheckAllShapeNodeExists = False
+End Function
+
 Sub PlotSchedule()
     If Not CheckAllNodeNumbered Then
         MsgBox "タスク番号の重複または未設定があります。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
@@ -49,6 +80,11 @@ Sub PlotSchedule()
         Exit Sub
     End If
 
+    If Not CheckAllShapeNodeExists Then
+        MsgBox "描画されていないタスクがあります。" & vbCrLf & "Drawシートを確認し、Plot Tasksを実行してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+    
     ScheduleSheet.ClearSchedule
     Dim n As Node
     
