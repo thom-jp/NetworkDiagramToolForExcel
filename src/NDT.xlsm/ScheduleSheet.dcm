@@ -47,7 +47,7 @@ Public Function GetTaskListAsNodes() As Object
     
     Dim tmpLastRow: tmpLastRow = Range("B" & Rows.Count).End(xlUp).Row
     If tmpLastRow >= 4 Then
-        For Each r In Range(Range("B4"), tmpLastRow)
+        For Each r In Range("B4:B" & tmpLastRow)
             With New Node
                 .TaskTitle = r.Value
                 If IsNumeric(CStr(r.Offset(0, -1).Value)) Then

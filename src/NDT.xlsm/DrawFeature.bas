@@ -64,7 +64,9 @@ Function OptimizeTextReturn(original_text, normal_width) As String
     Loop
     
     'I'm still investigation that why minus 2 works. I just  wanted to remove the last vbCrLf. IS vbCrLf two letter?"
-    result_string = Left(result_string, Len(result_string) - 2)
+    If Len(result_string) >= 2 Then
+        result_string = Left(result_string, Len(result_string) - 2)
+    End If
     
     OptimizeTextReturn = result_string
 End Function
