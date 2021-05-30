@@ -69,6 +69,27 @@ Error_Handler:
     CheckAllShapeNodeExists = False
 End Function
 
+Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boolean
+    If depth > DrawSheet.Ovals.Count Then
+        CheckTraceability = False
+        Exit Function
+    End If
+    If Not node_stack.Exists(n.ShapeObjectName) Then
+        node_stack.AddNode n, n.ShapeObjectName
+    End If
+    If n.GetDependency.Count > 0 Then
+        Dim nn As Node
+        For Each nn In n.GetDependency
+            Let CheckTraceability = CheckTraceability(nn, node_stack, depth + 1)
+            If Not CheckTraceability Then
+                Exit Function
+            End If
+        Next
+    Else
+        CheckTraceability = n.UnnumberedTaskTitle = "START"
+    End If
+End Function
+
 Sub PlotSchedule()
     If Not CheckAllNodeNumbered Then
         MsgBox "タスク番号の重複または未設定があります。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
@@ -81,7 +102,7 @@ Sub PlotSchedule()
     End If
 
     If Not CheckAllShapeNodeExists Then
-        MsgBox "描画されていないタスクがあります。" & vbCrLf & "Drawシートを確認し、Plot Tasksを実行してください。", vbExclamation, "エラー"
+        MsgBox "描画されていないタスクまたは余分に描画されたタスクがあります。" & vbCrLf & "Drawシートを確認し、Plot Tasksを実行してください。", vbExclamation, "エラー"
         Exit Sub
     End If
     
@@ -89,7 +110,20 @@ Sub PlotSchedule()
     Dim n As Node
     
     Application.Calculation = xlCalculationManual
-    For Each n In ReadDependency
+    Dim nn As Nodes: Set nn = ReadDependency
+    
+    Dim nnn As Nodes: Set nnn = New Nodes
+    If Not CheckTraceability(nn.FindEndNode, nnn, 0) Then
+        MsgBox "一部のノードが切断または循環参照されています。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+
+    If nnn.Count <> DrawSheet.Ovals.Count Then
+        MsgBox "一部のノードが切断または循環参照されています。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+    
+    For Each n In nn
         Dim tmpRow As Long
         tmpRow = ScheduleSheet.FindRowByShapeName(n.ShapeObjectName)
         

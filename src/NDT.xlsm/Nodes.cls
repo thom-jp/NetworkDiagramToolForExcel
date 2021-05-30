@@ -17,6 +17,15 @@ Public Sub AddNode(n As Node, Optional key, Optional Before, Optional After)
     internalCollection.Add n, key, Before, After
 End Sub
 
+Public Sub PushNode(n As Node, key As String)
+    internalCollection.Add n, key
+End Sub
+
+Function PopNode() As Node
+    Set PopNode = internalCollection.Item(internalCollection.Count)
+    internalCollection.Remove internalCollection.Count
+End Function
+
 Public Function Item(Index) As Node
 Attribute Item.VB_UserMemId = 0
     Set Item = internalCollection.Item(Index)
@@ -43,6 +52,16 @@ Error_Handler:
     Else
         Err.Raise Err.Number
     End If
+End Function
+
+Public Function FindEndNode() As Node
+    Set FindEndNode = Nothing
+    Dim n As Node
+    For Each n In internalCollection
+        If n.UnnumberedTaskTitle = "END" Then
+            Set FindEndNode = n
+        End If
+    Next
 End Function
 
 Public Sub Sort()
