@@ -44,17 +44,21 @@ End Sub
 Public Function GetTaskListAsNodes() As Object
     Dim result As Nodes: Set result = New Nodes
     Dim r As Range
-    For Each r In Range(Range("B4"), Range("B" & Rows.Count).End(xlUp))
-        With New Node
-            .TaskTitle = r.Value
-            If IsNumeric(CStr(r.Offset(0, -1).Value)) Then
-                .TaskTitle = r.Offset(0, -1).Value & "." & .TaskTitle
-            End If
-            .ShapeObjectName = CStr(r.Offset(0, 5).Value)
-            Set .TaskListRange = r
-            result.AddNode .Self
-        End With
-    Next
+    
+    Dim tmpLastRow: tmpLastRow = Range("B" & Rows.Count).End(xlUp).Row
+    If tmpLastRow >= 4 Then
+        For Each r In Range(Range("B4"), tmpLastRow)
+            With New Node
+                .TaskTitle = r.Value
+                If IsNumeric(CStr(r.Offset(0, -1).Value)) Then
+                    .TaskTitle = r.Offset(0, -1).Value & "." & .TaskTitle
+                End If
+                .ShapeObjectName = CStr(r.Offset(0, 5).Value)
+                Set .TaskListRange = r
+                result.AddNode .Self
+            End With
+        Next
+    End If
     Set GetTaskListAsNodes = result
 End Function
 
