@@ -21,6 +21,56 @@ Public Property Get DataStartCell() As Range
     Set DataStartCell = Range(DATA_START_CELL)
 End Property
 
-Public Sub ClearAllData()
-    Range(DataStartCell, DataStartCell.SpecialCells(xlLastCell)).ClearContents
+Public Property Get LastRow() As Long
+    Let LastRow = Cells.SpecialCells(xlLastCell).Row()
+End Property
+
+Public Property Get LastUsedRow() As Long
+    Dim i As Long
+    Dim tmpLast As Long
+    LastUsedRow = 0
+    For i = 1 To 10
+        tmpLast = Cells(Rows.Count, i).End(xlUp).Row
+        If LastUsedRow < tmpLast Then
+            LastUsedRow = tmpLast
+        End If
+    Next
+End Property
+
+Public Function FindRowByShapeName(shape_name As String) As Long
+    Dim r As Range
+    For Each r In Range("G4:G" & LastRow)
+        If r.Value = shape_name Then
+            Let FindRowByShapeName = r.Row
+            Exit Function
+        End If
+    Next
+    Let FindRowByShapeName = 0
+End Function
+
+Public Sub ClearSchedule()
+    Range("E4:F" & LastRow).ClearContents
 End Sub
+
+Public Function GetTaskListAsNodes() As Object
+    Dim result As Nodes: Set result = New Nodes
+    Dim r As Range
+    
+    Dim tmpLastRow: tmpLastRow = LastUsedRow
+    
+    If tmpLastRow >= 4 Then
+        For Each r In Range("B4:B" & tmpLastRow)
+            With New Node
+                .TaskTitle = r.Value
+                If IsNumeric(CStr(r.Offset(0, -1).Value)) Then
+                    .TaskTitle = r.Offset(0, -1).Value & "." & .TaskTitle
+                End If
+                .ShapeObjectName = CStr(r.Offset(0, 5).Value)
+                Set .TaskListRange = r
+                result.AddNode .Self
+            End With
+        Next
+    End If
+    Set GetTaskListAsNodes = result
+End Function
+

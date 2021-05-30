@@ -38,6 +38,58 @@ Function CheckDisconnection() As Boolean
     CheckDisconnection = True
 End Function
 
+Function CheckAllShapeNodeExists() As Boolean
+    Let CheckAllShapeNodeExists = False
+    With ScheduleSheet
+        'Last Used Row Check
+        If ScheduleSheet.LastUsedRow < 4 Then
+            Exit Function
+        End If
+
+        'Count Check
+        Dim r As Range
+        Dim rr As Range: Set rr = .Range("G4:G" & .LastUsedRow)
+        If Not DrawSheet.Ovals.Count = rr.Count Then
+            Exit Function
+        End If
+        
+        'Exist Check
+        For Each r In rr
+            If r.Value = "" Then
+                Exit Function
+            End If
+            On Error GoTo Error_Handler
+                Call DrawSheet.Ovals(r.Value)
+            On Error GoTo 0
+        Next
+    End With
+    CheckAllShapeNodeExists = True
+Exit Function
+Error_Handler:
+    CheckAllShapeNodeExists = False
+End Function
+
+Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boolean
+    If depth > DrawSheet.Ovals.Count Then
+        CheckTraceability = False
+        Exit Function
+    End If
+    If Not node_stack.Exists(n.ShapeObjectName) Then
+        node_stack.AddNode n, n.ShapeObjectName
+    End If
+    If n.GetDependency.Count > 0 Then
+        Dim nn As Node
+        For Each nn In n.GetDependency
+            Let CheckTraceability = CheckTraceability(nn, node_stack, depth + 1)
+            If Not CheckTraceability Then
+                Exit Function
+            End If
+        Next
+    Else
+        CheckTraceability = n.UnnumberedTaskTitle = "START"
+    End If
+End Function
+
 Sub PlotSchedule()
     If Not CheckAllNodeNumbered Then
         MsgBox "タスク番号の重複または未設定があります。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
@@ -49,33 +101,55 @@ Sub PlotSchedule()
         Exit Sub
     End If
 
-    ScheduleSheet.ClearAllData
+    If Not CheckAllShapeNodeExists Then
+        MsgBox "描画されていないタスクまたは余分に描画されたタスクがあります。" & vbCrLf & "Drawシートを確認し、Plot Tasksを実行してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+    
+    ScheduleSheet.ClearSchedule
     Dim n As Node
     
     Application.Calculation = xlCalculationManual
-    For Each n In ReadDependency
-        With ScheduleSheet.DataStartCell
-            .Offset(n.TaskNumber, ColOffset.Number).Value = n.TaskNumber
-            .Offset(n.TaskNumber, ColOffset.TaskName).Value = n.UnnumberedTaskTitle
-            .Offset(n.TaskNumber, ColOffset.PlannedStartDay).NumberFormatLocal = "yyyy/m/d"
-            .Offset(n.TaskNumber, ColOffset.PlannedEndDay).NumberFormatLocal = "yyyy/m/d"
-            .Offset(n.TaskNumber, ColOffset.PlannedEndDay).FormulaR1C1 = "=WORKDAY(RC[-1],RC[-2],Holidays!C[-5])"
-            .Offset(n.TaskNumber, ColOffset.Duration).Value = 1
-        End With
+    Dim nn As Nodes: Set nn = ReadDependency
+    
+    Dim nnn As Nodes: Set nnn = New Nodes
+    If Not CheckTraceability(nn.FindEndNode, nnn, 0) Then
+        MsgBox "一部のノードが切断または循環参照されています。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+
+    If nnn.Count <> DrawSheet.Ovals.Count Then
+        MsgBox "一部のノードが切断または循環参照されています。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+    
+    For Each n In nn
+        Dim tmpRow As Long
+        tmpRow = ScheduleSheet.FindRowByShapeName(n.ShapeObjectName)
+        
+        ScheduleSheet.Cells(tmpRow, ColOffset.Number + 1).Value = n.TaskNumber
+        ScheduleSheet.Cells(tmpRow, ColOffset.TaskName + 1).Value = n.UnnumberedTaskTitle
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).NumberFormatLocal = "yyyy/m/d (aaa)"
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).NumberFormatLocal = "yyyy/m/d (aaa)"
+        ScheduleSheet.Cells(tmpRow, ColOffset.PlannedEndDay + 1).FormulaR1C1 = "=IF(ISBLANK(RC[4]),WORKDAY(RC[-1],RC[-2],Holidays!C[-5]),RC[-1]+7-WEEKDAY(RC[-1]+7-RC[4]))"
         
         Dim tmpStr As String: tmpStr = ""
         
         Dim n2 As Node
         For Each n2 In n.GetDependency
-            tmpStr = tmpStr & "F" & n2.TaskNumber + ScheduleSheet.DataStartCell.Row & ","
+            Dim tmpRow2 As String: tmpRow2 = ScheduleSheet.FindRowByShapeName(n2.ShapeObjectName)
+            tmpStr = tmpStr & "F" & tmpRow2 & ","
         Next
             
         If Len(tmpStr) > 0 Then
             tmpStr = Left(tmpStr, Len(tmpStr) - 1)
         End If
         
+        Dim tmpStartOffsetCell As String
+        tmpStartOffsetCell = "I" & tmpRow
+        
         If n.GetDependency.Count > 0 Then
-            ScheduleSheet.DataStartCell.Offset(n.TaskNumber, ColOffset.PlannedStartDay).Formula = "=WORKDAY(MAX(" & tmpStr & "),1,Holidays!A:A)"
+            ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).Formula = "=WORKDAY(MAX(" & tmpStr & ")," & tmpStartOffsetCell & " ,Holidays!A:A)"
         End If
         
         tmpStr = ""
@@ -83,9 +157,12 @@ Sub PlotSchedule()
             tmpStr = tmpStr & Val(n2.TaskTitle) & ","
         Next
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
-        ScheduleSheet.DataStartCell.Offset(n.TaskNumber, ColOffset.Dependency).Value = tmpStr
+        ScheduleSheet.Cells(tmpRow, ColOffset.Dependency + 1).Value = tmpStr
+
+        If n.UnnumberedTaskTitle = "START" Then
+            ScheduleSheet.Cells(tmpRow, ColOffset.PlannedStartDay + 1).Value = Int(Now())
+        End If
     Next
-    ScheduleSheet.DataStartCell.Offset(0, ColOffset.PlannedStartDay).Value = Int(Now())
     Application.Calculation = xlCalculationAutomatic
 End Sub
 
@@ -100,6 +177,7 @@ Private Function ReadDependency() As Nodes
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
             With New Node
                 .TaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
+                .ShapeObjectName = sh.Name
                 c.AddNode .Self, .TaskTitle
             End With
         End If
