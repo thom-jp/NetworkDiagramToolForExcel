@@ -272,7 +272,7 @@ Sub DeNumberingAllNodes()
     Next
 
     Dim n As Node
-    For Each n In TaskListSheet.GetTaskListAsNodes
+    For Each n In ScheduleSheet.GetTaskListAsNodes
         n.TaskListRange.Offset(0, -1).Value = ""
     Next
 End Sub
