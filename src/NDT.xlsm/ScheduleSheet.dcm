@@ -7,7 +7,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
-Private Const DATA_START_CELL = "A4"
 Public Enum ColOffset
     Number = 0
     TaskName
@@ -16,10 +15,6 @@ Public Enum ColOffset
     PlannedStartDay
     PlannedEndDay
 End Enum
-
-Public Property Get DataStartCell() As Range
-    Set DataStartCell = Range(DATA_START_CELL)
-End Property
 
 Public Property Get LastRow() As Long
     Let LastRow = Cells.SpecialCells(xlLastCell).Row()

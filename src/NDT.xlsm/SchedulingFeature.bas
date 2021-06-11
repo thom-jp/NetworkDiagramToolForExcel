@@ -1,7 +1,7 @@
 Attribute VB_Name = "SchedulingFeature"
 Option Explicit
 Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
-Function CheckAllNodeNumbered() As Boolean
+Private Function CheckAllNodeNumbered() As Boolean
     Dim dic As Dictionary: Set dic = New Dictionary
     Dim ov As Oval
     Dim k As String
@@ -20,7 +20,7 @@ Function CheckAllNodeNumbered() As Boolean
     CheckAllNodeNumbered = True
 End Function
 
-Function CheckDisconnection() As Boolean
+Private Function CheckDisconnection() As Boolean
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         ' This magic number -2 is just taken from an inspection result.
@@ -38,7 +38,7 @@ Function CheckDisconnection() As Boolean
     CheckDisconnection = True
 End Function
 
-Function CheckAllShapeNodeExists() As Boolean
+Private Function CheckAllShapeNodeExists() As Boolean
     Let CheckAllShapeNodeExists = False
     With ScheduleSheet
         'Last Used Row Check
@@ -69,7 +69,7 @@ Error_Handler:
     CheckAllShapeNodeExists = False
 End Function
 
-Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boolean
+Private Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boolean
     If depth > DrawSheet.Ovals.Count Then
         CheckTraceability = False
         Exit Function
@@ -90,7 +90,7 @@ Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boo
     End If
 End Function
 
-Sub PlotSchedule()
+Public Sub Btn_PlotSchedule()
     If Not CheckAllNodeNumbered Then
         MsgBox "タスク番号の重複または未設定があります。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
         Exit Sub
