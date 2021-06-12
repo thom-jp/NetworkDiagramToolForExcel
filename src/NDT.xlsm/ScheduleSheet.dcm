@@ -21,11 +21,11 @@ Public Property Get LastRow() As Long
 End Property
 
 Public Property Get LastUsedRow() As Long
-    Dim i As Long
+    Dim columnIndex As Long
     Dim tmpLast As Long
     LastUsedRow = 0
-    For i = 1 To 10
-        tmpLast = Cells(Rows.Count, i).End(xlUp).Row
+    For columnIndex = 1 To 10
+        tmpLast = Cells(Rows.Count, columnIndex).End(xlUp).Row
         If LastUsedRow < tmpLast Then
             LastUsedRow = tmpLast
         End If
