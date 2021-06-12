@@ -202,3 +202,24 @@ Private Function ReadDependency() As Nodes
 
     Set ReadDependency = c
 End Function
+
+Public Sub Btn_FillDefault()
+    Dim i As Long
+    Application.Calculation = xlCalculationManual
+    For i = 4 To ScheduleSheet.LastUsedRow
+        If ScheduleSheet.Range("B" & i).Value = "START" Or _
+            ScheduleSheet.Range("B" & i).Value = "END" Then
+            ScheduleSheet.Range("D" & i).Value = 0
+            ScheduleSheet.Range("I" & i).Value = 0
+        Else
+            ScheduleSheet.Range("D" & i).Value = 1
+            If ScheduleSheet.Range("C" & i).Value = 0 Then
+                ScheduleSheet.Range("I" & i).Value = 0
+            Else
+                ScheduleSheet.Range("I" & i).Value = 1
+            End If
+        End If
+    Next
+    Application.Calculate
+    Application.Calculation = xlCalculationAutomatic
+End Sub
