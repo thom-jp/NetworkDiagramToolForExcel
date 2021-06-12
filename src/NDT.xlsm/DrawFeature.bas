@@ -3,8 +3,8 @@ Option Explicit
 Const SIZE = 60
 Const Y_DISTANCE = 20
 Const X_DISTANCE = 10
-Const X_OFFSET = 50
-Const Y_OFFSET = 150
+Const X_OFFSET = 10
+Const Y_OFFSET = 125
 Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
 
 Private Enum Directions
@@ -18,7 +18,6 @@ Private Enum Directions
     NorthEast
 End Enum
 
-
 Public Sub EntryPoint()
     Application.Run Application.Caller
 End Sub
@@ -29,7 +28,7 @@ Private Sub Btn_PlotTasks()
     Dim x As Double: x = X_DISTANCE
     Dim y As Double: y = Y_DISTANCE
     Dim n As Node
-    x = x + SIZE + X_DISTANCE
+    x = 0
     For Each n In ScheduleSheet.GetTaskListAsNodes
         Dim sh As Shape
         Set sh = n.FindShape
