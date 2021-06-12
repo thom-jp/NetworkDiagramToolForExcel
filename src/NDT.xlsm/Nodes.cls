@@ -69,7 +69,7 @@ Public Sub Sort()
     For i = 1 To internalCollection.Count
         For j = internalCollection.Count To i Step -1
             Dim n As Node
-            If Val(internalCollection(i).TaskTitle) > Val(internalCollection(j).TaskTitle) Then
+            If val(internalCollection(i).TaskTitle) > val(internalCollection(j).TaskTitle) Then
                     SwapItems i, j
             End If
         Next j

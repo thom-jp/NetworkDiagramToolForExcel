@@ -91,6 +91,11 @@ Private Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long
 End Function
 
 Public Sub Btn_PlotSchedule()
+    If ConfigSheet.LockMacro Then
+        MsgBox "このマクロは既存のデザインに影響を及ぼす可能性があるため、現在ロックされています。" & vbNewLine & "リスクを承知のうえでロックを解除するにはConfigシートのC4セルをFalseに書き換えてください。", vbExclamation
+        Exit Sub
+    End If
+    
     If Not CheckAllNodeNumbered Then
         MsgBox "タスク番号の重複または未設定があります。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
         Exit Sub
@@ -154,7 +159,7 @@ Public Sub Btn_PlotSchedule()
         
         tmpStr = ""
         For Each n2 In n.GetDependency
-            tmpStr = tmpStr & Val(n2.TaskTitle) & ","
+            tmpStr = tmpStr & val(n2.TaskTitle) & ","
         Next
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
         ScheduleSheet.Cells(tmpRow, ColOffset.Dependency + 1).Value = tmpStr
@@ -204,6 +209,10 @@ Private Function ReadDependency() As Nodes
 End Function
 
 Public Sub Btn_FillDefault()
+    If ConfigSheet.LockMacro Then
+        MsgBox "このマクロは既存のデザインに影響を及ぼす可能性があるため、現在ロックされています。" & vbNewLine & "リスクを承知のうえでロックを解除するにはConfigシートのC4セルをFalseに書き換えてください。", vbExclamation
+        Exit Sub
+    End If
     Dim i As Long
     Application.Calculation = xlCalculationManual
     For i = 4 To ScheduleSheet.LastUsedRow
