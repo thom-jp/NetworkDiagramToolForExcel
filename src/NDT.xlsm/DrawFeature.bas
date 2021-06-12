@@ -29,6 +29,11 @@ Private Sub Btn_PlotTasks()
     Dim y As Double: y = Y_DISTANCE
     Dim n As Node
     x = 0
+
+    With DrawSheet.Rows(10)
+        .ClearOutline
+        .Group
+    End With
     For Each n In ScheduleSheet.GetTaskListAsNodes
         Dim sh As Shape
         Set sh = n.FindShape
