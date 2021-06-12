@@ -19,6 +19,14 @@ Private Enum Directions
 End Enum
 
 Public Sub EntryPoint()
+    If ConfigSheet.LockMacro Then
+        MsgBox "このマクロは既存のデザインに影響を及ぼす可能性があるため、現在ロックされています。" & vbNewLine & "リスクを承知のうえでロックを解除するにはConfigシートのC4セルをFalseに書き換えてください。", vbExclamation
+        Exit Sub
+    End If
+    Application.Run Application.Caller
+End Sub
+
+Public Sub EntryPointOperational()
     Application.Run Application.Caller
 End Sub
 
@@ -299,19 +307,28 @@ Private Function RemoveNumberPrefix(tmp_str As String) As String
 End Function
 
 Private Sub Btn_SetCompletedIcon()
+    On Error Resume Next
     IconSheet.ChartObjects("CompletedIcon").Chart.Export Environ("temp") & "\NDT_CompletedIcon.bmp"
     Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CompletedIcon.bmp"
+    On Error GoTo 0
 End Sub
 
 Private Sub Btn_SetCancelledIcon()
+    On Error Resume Next
     IconSheet.ChartObjects("CancelledIcon").Chart.Export Environ("temp") & "\NDT_CancelledIcon.bmp"
     Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CancelledIcon.bmp"
+    On Error GoTo 0
 End Sub
 
 Private Sub Btn_ClearIcon()
+    On Error Resume Next
     With Selection.ShapeRange.Fill
         .Solid
         .ForeColor.RGB = rgbLavender
     End With
+    On Error GoTo 0
 End Sub
 
+Private Sub Btn_LockMacros()
+    ConfigSheet.LockMacro = True
+End Sub
