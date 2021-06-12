@@ -1,7 +1,7 @@
 Attribute VB_Name = "SchedulingFeature"
 Option Explicit
 Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
-Function CheckAllNodeNumbered() As Boolean
+Private Function CheckAllNodeNumbered() As Boolean
     Dim dic As Dictionary: Set dic = New Dictionary
     Dim ov As Oval
     Dim k As String
@@ -20,7 +20,7 @@ Function CheckAllNodeNumbered() As Boolean
     CheckAllNodeNumbered = True
 End Function
 
-Function CheckDisconnection() As Boolean
+Private Function CheckDisconnection() As Boolean
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         ' This magic number -2 is just taken from an inspection result.
@@ -38,7 +38,7 @@ Function CheckDisconnection() As Boolean
     CheckDisconnection = True
 End Function
 
-Function CheckAllShapeNodeExists() As Boolean
+Private Function CheckAllShapeNodeExists() As Boolean
     Let CheckAllShapeNodeExists = False
     With ScheduleSheet
         'Last Used Row Check
@@ -69,7 +69,7 @@ Error_Handler:
     CheckAllShapeNodeExists = False
 End Function
 
-Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boolean
+Private Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boolean
     If depth > DrawSheet.Ovals.Count Then
         CheckTraceability = False
         Exit Function
@@ -90,7 +90,12 @@ Function CheckTraceability(n As Node, node_stack As Nodes, depth As Long) As Boo
     End If
 End Function
 
-Sub PlotSchedule()
+Public Sub Btn_PlotSchedule()
+    If ConfigSheet.LockMacro Then
+        MsgBox "このマクロは既存のデザインに影響を及ぼす可能性があるため、現在ロックされています。" & vbNewLine & "リスクを承知のうえでロックを解除するにはConfigシートのC4セルをFalseに書き換えてください。", vbExclamation
+        Exit Sub
+    End If
+    
     If Not CheckAllNodeNumbered Then
         MsgBox "タスク番号の重複または未設定があります。" & vbCrLf & "Drawシートを確認してください。", vbExclamation, "エラー"
         Exit Sub
@@ -154,7 +159,7 @@ Sub PlotSchedule()
         
         tmpStr = ""
         For Each n2 In n.GetDependency
-            tmpStr = tmpStr & Val(n2.TaskTitle) & ","
+            tmpStr = tmpStr & val(n2.TaskTitle) & ","
         Next
         If Len(tmpStr) > 0 Then tmpStr = Left(tmpStr, Len(tmpStr) - 1)
         ScheduleSheet.Cells(tmpRow, ColOffset.Dependency + 1).Value = tmpStr
@@ -202,3 +207,28 @@ Private Function ReadDependency() As Nodes
 
     Set ReadDependency = c
 End Function
+
+Public Sub Btn_FillDefault()
+    If ConfigSheet.LockMacro Then
+        MsgBox "このマクロは既存のデザインに影響を及ぼす可能性があるため、現在ロックされています。" & vbNewLine & "リスクを承知のうえでロックを解除するにはConfigシートのC4セルをFalseに書き換えてください。", vbExclamation
+        Exit Sub
+    End If
+    Dim i As Long
+    Application.Calculation = xlCalculationManual
+    For i = 4 To ScheduleSheet.LastUsedRow
+        If ScheduleSheet.Range("B" & i).Value = "START" Or _
+            ScheduleSheet.Range("B" & i).Value = "END" Then
+            ScheduleSheet.Range("D" & i).Value = 0
+            ScheduleSheet.Range("I" & i).Value = 0
+        Else
+            ScheduleSheet.Range("D" & i).Value = 1
+            If ScheduleSheet.Range("C" & i).Value = 0 Then
+                ScheduleSheet.Range("I" & i).Value = 0
+            Else
+                ScheduleSheet.Range("I" & i).Value = 1
+            End If
+        End If
+    Next
+    Application.Calculate
+    Application.Calculation = xlCalculationAutomatic
+End Sub

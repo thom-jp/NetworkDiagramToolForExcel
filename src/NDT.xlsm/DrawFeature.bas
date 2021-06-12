@@ -3,16 +3,45 @@ Option Explicit
 Const SIZE = 60
 Const Y_DISTANCE = 20
 Const X_DISTANCE = 10
-Const X_OFFSET = 50
-Const Y_OFFSET = 150
+Const X_OFFSET = 10
+Const Y_OFFSET = 125
 Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
 
-Sub DrawTaskAsNode()
+Private Enum Directions
+    North = 1
+    NorthWest
+    West
+    SouthWest
+    South
+    SouthEast
+    East
+    NorthEast
+End Enum
+
+Public Sub EntryPoint()
+    If ConfigSheet.LockMacro Then
+        MsgBox "このマクロは既存のデザインに影響を及ぼす可能性があるため、現在ロックされています。" & vbNewLine & "リスクを承知のうえでロックを解除するにはConfigシートのC4セルをFalseに書き換えてください。", vbExclamation
+        Exit Sub
+    End If
+    Application.Run Application.Caller
+End Sub
+
+Public Sub EntryPointOperational()
+    Application.Run Application.Caller
+End Sub
+
+Private Sub Btn_PlotTasks()
+    Application.ScreenUpdating = False
+    Call RemoveUnregisteredOvals
     Dim x As Double: x = X_DISTANCE
     Dim y As Double: y = Y_DISTANCE
     Dim n As Node
-    'Call CreateNodeShape(SIZE, x, y, "START")
-    x = x + SIZE + X_DISTANCE
+    x = 0
+
+    With DrawSheet.Rows(10)
+        .ClearOutline
+        .Group
+    End With
     For Each n In ScheduleSheet.GetTaskListAsNodes
         Dim sh As Shape
         Set sh = n.FindShape
@@ -23,12 +52,12 @@ Sub DrawTaskAsNode()
         Else
             sh.TextFrame2.TextRange.Text = OptimizeTextReturn(n.TaskTitle, 5)
         End If
-        
     Next
-    'Call CreateNodeShape(SIZE, x, y, "END")
+    DrawSheet.Select
+    Application.ScreenUpdating = True
 End Sub
 
-Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
+Private Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Dim s As Shape
     Set s = DrawSheet.Shapes.AddShape(msoShapeOval, pos_x + X_OFFSET, pos_y + Y_OFFSET, SIZE, SIZE)
     s.Fill.ForeColor.RGB = XlRgbColor.rgbLavender
@@ -46,7 +75,7 @@ Function CreateNodeShape(SIZE, pos_x, pos_y, task_title As String) As Shape
     Set CreateNodeShape = s
 End Function
 
-Function OptimizeTextReturn(original_text, normal_width) As String
+Private Function OptimizeTextReturn(original_text, normal_width) As String
     Dim w As Integer: w = normal_width
     Dim h As Integer: h = Round(Len(original_text) / normal_width + 0.4, 0)
     
@@ -71,7 +100,7 @@ Function OptimizeTextReturn(original_text, normal_width) As String
     OptimizeTextReturn = result_string
 End Function
 
-Sub RemoveAllShapse()
+Private Sub Btn_RemoveAllShapse()
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         If sh.Type <> msoFormControl Then
@@ -80,7 +109,7 @@ Sub RemoveAllShapse()
     Next
 End Sub
 
-Sub RemoveUnregisteredOvals()
+Private Sub RemoveUnregisteredOvals()
     Dim ov As Oval
     Dim n As Node
     Dim nn As Nodes: Set nn = ScheduleSheet.GetTaskListAsNodes
@@ -109,7 +138,7 @@ Private Sub RemoveDisconnection()
     Next
 End Sub
 
-Sub FindDisconnection()
+Private Sub Btn_FindDisconnection()
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         ' This magic number -2 is just taken from an inspection result.
@@ -124,7 +153,7 @@ Sub FindDisconnection()
     Next
 End Sub
 
-Sub RemoveConnections()
+Private Sub Btn_RemoveConnections()
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         ' This magic number -2 is just taken from an inspection result.
@@ -135,7 +164,7 @@ Sub RemoveConnections()
     Next
 End Sub
 
-Sub SwapNodeLocation()
+Private Sub Btn_SwapNodeLocation()
     Dim sh1 As Shape
     Dim sh2 As Shape
     Set sh1 = Selection.ShapeRange(1)
@@ -151,7 +180,7 @@ Sub SwapNodeLocation()
     sh2.Left = ll
 End Sub
 
-Sub OrderNodeVertical()
+Private Sub Btn_OrderNodeVertical()
     'To keep selection order, store shapes to a Collection.
     Dim c As Collection
     Set c = New Collection
@@ -175,73 +204,65 @@ Sub OrderNodeVertical()
     Next
 End Sub
 
-Sub ConnectStreight()
-    Dim c As Collection: Set c = New Collection
-    Dim sh As Shape
-    For Each sh In Selection.ShapeRange
-        c.Add sh
-    Next
-    
-    Dim sh2 As Shape
-    Dim i As Integer
-    For i = 1 To c.Count - 1
-        Set sh = c.Item(i)
-        Set sh2 = c.Item(i + 1)
-        
-        Dim cn As Shape
-        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
-        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
-        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
-        cn.ConnectorFormat.BeginConnect sh, 7
-        cn.ConnectorFormat.EndConnect sh2, 3
-    Next
+Private Sub Btn_ConnectStreight()
+    With getOvalCollection_SE
+        Dim i As Integer
+        For i = 1 To .Count - 1
+            Call ConnectArrow( _
+                src_oval:=.Item(i), _
+                dst_oval:=.Item(i + 1))
+        Next
+    End With
 End Sub
 
-Sub ConnectSplit()
-    Dim c As Collection: Set c = New Collection
-    Dim sh As Shape
-    For Each sh In Selection.ShapeRange
-        c.Add sh
-    Next
-    
-    Dim sh2 As Shape
+Private Sub Btn_ConnectSplit()
+    With getOvalCollection_SE
     Dim i As Integer
-    For i = 2 To c.Count
-        Set sh = c.Item(1)
-        Set sh2 = c.Item(i)
-        
-        Dim cn As Shape
-        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
-        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
-        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
-        cn.ConnectorFormat.BeginConnect sh, 7
-        cn.ConnectorFormat.EndConnect sh2, 3
-    Next
+        For i = 2 To .Count
+            Call ConnectArrow( _
+                src_oval:=.Item(1), _
+                dst_oval:=.Item(i))
+        Next
+    End With
 End Sub
 
-Sub ConnectMarge()
-    Dim c As Collection: Set c = New Collection
-    Dim sh As Shape
-    For Each sh In Selection.ShapeRange
-        c.Add sh
-    Next
-    
-    Dim sh2 As Shape
-    Dim i As Integer
-    For i = 1 To c.Count - 1
-        Set sh = c.Item(i)
-        Set sh2 = c.Item(c.Count)
-        
-        Dim cn As Shape
-        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
-        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
-        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
-        cn.ConnectorFormat.BeginConnect sh, 7
-        cn.ConnectorFormat.EndConnect sh2, 3
-    Next
+Private Sub Btn_ConnectMarge()
+    With getOvalCollection_SE
+        Dim i As Integer
+        For i = 1 To .Count - 1
+            Call ConnectArrow( _
+                src_oval:=.Item(i), _
+                dst_oval:=.Item(.Count))
+        Next
+    End With
 End Sub
 
-Sub NumberingNodes()
+'Postfix _SE means that it has Side Effects
+Private Function getOvalCollection_SE() As Collection
+    Set getOvalCollection_SE = New Collection
+    Dim shp As Shape
+    For Each shp In Selection.ShapeRange
+        getOvalCollection_SE.Add shp
+    Next
+End Function
+
+Private Sub ConnectArrow(src_oval As Shape, dst_oval As Shape)
+        Dim arrow As Shape
+        Set arrow = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
+        
+        arrow.Line.ForeColor.RGB = CONNECTOR_COLOR
+        arrow.Line.EndArrowheadStyle = msoArrowheadTriangle
+        
+        arrow.ConnectorFormat.BeginConnect _
+            ConnectedShape:=src_oval, _
+            ConnectionSite:=Directions.East
+        
+        arrow.ConnectorFormat.EndConnect _
+            ConnectedShape:=dst_oval, _
+            ConnectionSite:=Directions.West
+End Sub
+
+Private Sub Btn_NumberingNodes()
     Dim i As Integer: i = 0
     Dim sh As Shape
     Dim nn As Nodes: Set nn = ScheduleSheet.GetTaskListAsNodes
@@ -261,7 +282,7 @@ Sub NumberingNodes()
     Next
 End Sub
 
-Sub DeNumberingAllNodes()
+Private Sub Btn_DeNumberingAllNodes()
     Dim sh As Shape
     For Each sh In DrawSheet.Shapes
         If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
@@ -277,10 +298,37 @@ Sub DeNumberingAllNodes()
     Next
 End Sub
 
-Function RemoveNumberPrefix(tmp_str As String) As String
+Private Function RemoveNumberPrefix(tmp_str As String) As String
     If IsNumeric(Split(tmp_str, ".")(0)) Then
         RemoveNumberPrefix = Mid(tmp_str, InStr(1, tmp_str, ".") + 1)
     Else
         RemoveNumberPrefix = tmp_str
     End If
 End Function
+
+Private Sub Btn_SetCompletedIcon()
+    On Error Resume Next
+    IconSheet.ChartObjects("CompletedIcon").Chart.Export Environ("temp") & "\NDT_CompletedIcon.bmp"
+    Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CompletedIcon.bmp"
+    On Error GoTo 0
+End Sub
+
+Private Sub Btn_SetCancelledIcon()
+    On Error Resume Next
+    IconSheet.ChartObjects("CancelledIcon").Chart.Export Environ("temp") & "\NDT_CancelledIcon.bmp"
+    Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CancelledIcon.bmp"
+    On Error GoTo 0
+End Sub
+
+Private Sub Btn_ClearIcon()
+    On Error Resume Next
+    With Selection.ShapeRange.Fill
+        .Solid
+        .ForeColor.RGB = rgbLavender
+    End With
+    On Error GoTo 0
+End Sub
+
+Private Sub Btn_LockMacros()
+    ConfigSheet.LockMacro = True
+End Sub

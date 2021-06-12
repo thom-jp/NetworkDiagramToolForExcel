@@ -1,12 +1,5 @@
 Attribute VB_Name = "Work"
 Option Explicit
-Sub TestFeature()
-    Application.ScreenUpdating = False
-    DrawFeature.RemoveUnregisteredOvals
-    DrawFeature.DrawTaskAsNode
-    DrawSheet.Select
-    Application.ScreenUpdating = True
-End Sub
 
 Sub TestNodesCollection()
     Dim nn As Nodes
