@@ -7,6 +7,18 @@ Const X_OFFSET = 50
 Const Y_OFFSET = 150
 Const CONNECTOR_COLOR = XlRgbColor.rgbDimGray
 
+Private Enum Directions
+    North = 1
+    NorthWest
+    West
+    SouthWest
+    South
+    SouthEast
+    East
+    NorthEast
+End Enum
+
+
 Public Sub EntryPoint()
     Application.Run Application.Caller
 End Sub
@@ -181,69 +193,61 @@ Private Sub Btn_OrderNodeVertical()
 End Sub
 
 Private Sub Btn_ConnectStreight()
-    Dim c As Collection: Set c = New Collection
-    Dim sh As Shape
-    For Each sh In Selection.ShapeRange
-        c.Add sh
-    Next
-    
-    Dim sh2 As Shape
-    Dim i As Integer
-    For i = 1 To c.Count - 1
-        Set sh = c.Item(i)
-        Set sh2 = c.Item(i + 1)
-        
-        Dim cn As Shape
-        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
-        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
-        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
-        cn.ConnectorFormat.BeginConnect sh, 7
-        cn.ConnectorFormat.EndConnect sh2, 3
-    Next
+    With getOvalCollection_SE
+        Dim i As Integer
+        For i = 1 To .Count - 1
+            Call ConnectArrow( _
+                src_oval:=.Item(i), _
+                dst_oval:=.Item(i + 1))
+        Next
+    End With
 End Sub
 
 Private Sub Btn_ConnectSplit()
-    Dim c As Collection: Set c = New Collection
-    Dim sh As Shape
-    For Each sh In Selection.ShapeRange
-        c.Add sh
-    Next
-    
-    Dim sh2 As Shape
+    With getOvalCollection_SE
     Dim i As Integer
-    For i = 2 To c.Count
-        Set sh = c.Item(1)
-        Set sh2 = c.Item(i)
-        
-        Dim cn As Shape
-        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
-        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
-        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
-        cn.ConnectorFormat.BeginConnect sh, 7
-        cn.ConnectorFormat.EndConnect sh2, 3
-    Next
+        For i = 2 To .Count
+            Call ConnectArrow( _
+                src_oval:=.Item(1), _
+                dst_oval:=.Item(i))
+        Next
+    End With
 End Sub
 
 Private Sub Btn_ConnectMarge()
-    Dim c As Collection: Set c = New Collection
-    Dim sh As Shape
-    For Each sh In Selection.ShapeRange
-        c.Add sh
+    With getOvalCollection_SE
+        Dim i As Integer
+        For i = 1 To .Count - 1
+            Call ConnectArrow( _
+                src_oval:=.Item(i), _
+                dst_oval:=.Item(.Count))
+        Next
+    End With
+End Sub
+
+'Postfix _SE means that it has Side Effects
+Private Function getOvalCollection_SE() As Collection
+    Set getOvalCollection_SE = New Collection
+    Dim shp As Shape
+    For Each shp In Selection.ShapeRange
+        getOvalCollection_SE.Add shp
     Next
-    
-    Dim sh2 As Shape
-    Dim i As Integer
-    For i = 1 To c.Count - 1
-        Set sh = c.Item(i)
-        Set sh2 = c.Item(c.Count)
+End Function
+
+Private Sub ConnectArrow(src_oval As Shape, dst_oval As Shape)
+        Dim arrow As Shape
+        Set arrow = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
         
-        Dim cn As Shape
-        Set cn = DrawSheet.Shapes.AddConnector(msoConnectorStraight, 0, 0, 100, 100)
-        cn.Line.ForeColor.RGB = CONNECTOR_COLOR
-        cn.Line.EndArrowheadStyle = msoArrowheadTriangle
-        cn.ConnectorFormat.BeginConnect sh, 7
-        cn.ConnectorFormat.EndConnect sh2, 3
-    Next
+        arrow.Line.ForeColor.RGB = CONNECTOR_COLOR
+        arrow.Line.EndArrowheadStyle = msoArrowheadTriangle
+        
+        arrow.ConnectorFormat.BeginConnect _
+            ConnectedShape:=src_oval, _
+            ConnectionSite:=Directions.East
+        
+        arrow.ConnectorFormat.EndConnect _
+            ConnectedShape:=dst_oval, _
+            ConnectionSite:=Directions.West
 End Sub
 
 Private Sub Btn_NumberingNodes()
@@ -289,3 +293,4 @@ Private Function RemoveNumberPrefix(tmp_str As String) As String
         RemoveNumberPrefix = tmp_str
     End If
 End Function
+
