@@ -298,3 +298,20 @@ Private Function RemoveNumberPrefix(tmp_str As String) As String
     End If
 End Function
 
+Private Sub Btn_SetCompletedIcon()
+    IconSheet.ChartObjects("CompletedIcon").Chart.Export Environ("temp") & "\NDT_CompletedIcon.bmp"
+    Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CompletedIcon.bmp"
+End Sub
+
+Private Sub Btn_SetCancelledIcon()
+    IconSheet.ChartObjects("CancelledIcon").Chart.Export Environ("temp") & "\NDT_CancelledIcon.bmp"
+    Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CancelledIcon.bmp"
+End Sub
+
+Private Sub Btn_ClearIcon()
+    With Selection.ShapeRange.Fill
+        .Solid
+        .ForeColor.RGB = rgbLavender
+    End With
+End Sub
+
