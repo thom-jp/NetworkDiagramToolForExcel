@@ -320,6 +320,35 @@ Private Sub Btn_SetCancelledIcon()
     On Error GoTo 0
 End Sub
 
+Private Sub Btn_SetInProgressIcon()
+    Dim percentage: percentage = InputBox("進捗率(%)を1～99の整数で入力してください。")
+    
+    If Not IsNumeric(percentage) Then
+        MsgBox "数値以外のものが入力されました。やり直してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+
+    If CDbl(percentage) <> CInt(percentage) Then
+        MsgBox "少数は入力できません。やり直してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+    
+    If percentage < 1 Or percentage > 99 Then
+        MsgBox "範囲外の数値が入力されました。やり直してください。", vbExclamation, "エラー"
+        Exit Sub
+    End If
+    
+    With IconSheet.ChartObjects("InProgressIcon").Chart.Shapes(1)
+        .Adjustments.Item(1) = -90
+        .Adjustments.Item(2) = ((360 / 100) * CInt(percentage)) - 90
+    End With
+    On Error Resume Next
+    IconSheet.ChartObjects("InProgressIcon").Chart.Export Environ("temp") & "\NDT_InProgressIcon.bmp"
+    Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_InProgressIcon.bmp"
+    On Error GoTo 0
+End Sub
+
+
 Private Sub Btn_ClearIcon()
     On Error Resume Next
     With Selection.ShapeRange.Fill
