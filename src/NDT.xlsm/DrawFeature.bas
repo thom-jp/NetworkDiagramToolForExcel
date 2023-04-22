@@ -211,6 +211,10 @@ Private Sub Btn_OrderNodeVertical()
 End Sub
 
 Private Sub Btn_ConnectStreight()
+    If getOvalCollection_SE.Count < 2 Then
+        MsgBox "Kindly select 2 nodes at least.", vbInformation
+        Exit Sub
+    End If
     With getOvalCollection_SE
         Dim i As Integer
         For i = 1 To .Count - 1
@@ -222,6 +226,10 @@ Private Sub Btn_ConnectStreight()
 End Sub
 
 Private Sub Btn_ConnectSplit()
+    If getOvalCollection_SE.Count < 3 Then
+        MsgBox "Kindly select 3 nodes at least.", vbInformation
+        Exit Sub
+    End If
     With getOvalCollection_SE
     Dim i As Integer
         For i = 2 To .Count
@@ -233,6 +241,10 @@ Private Sub Btn_ConnectSplit()
 End Sub
 
 Private Sub Btn_ConnectMarge()
+    If getOvalCollection_SE.Count < 3 Then
+        MsgBox "Kindly select 3 nodes at least.", vbInformation
+        Exit Sub
+    End If
     With getOvalCollection_SE
         Dim i As Integer
         For i = 1 To .Count - 1
@@ -277,18 +289,16 @@ Private Sub Btn_NumberingNodes()
     Dim sh As Shape
     Dim nn As Nodes: Set nn = ScheduleSheet.GetTaskListAsNodes
     Dim n As Node
-    For Each sh In Selection.ShapeRange
-        If sh.Type = msoAutoShape And sh.AutoShapeType = 9 Then
-            Dim tmpTaskTitle As String: tmpTaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
-            tmpTaskTitle = i & "." & RemoveNumberPrefix(tmpTaskTitle)
-            sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
-            For Each n In nn
-                If sh.Name = n.ShapeObjectName Then
-                    n.TaskListRange.Offset(0, -1).Value = CLng(i)
-                End If
-            Next
-            i = i + 1
-        End If
+    For Each sh In getOvalCollection_SE
+        Dim tmpTaskTitle As String: tmpTaskTitle = Replace(sh.TextFrame2.TextRange.Text, vbLf, "")
+        tmpTaskTitle = i & "." & RemoveNumberPrefix(tmpTaskTitle)
+        sh.TextFrame2.TextRange.Text = OptimizeTextReturn(tmpTaskTitle, 5)
+        For Each n In nn
+            If sh.Name = n.ShapeObjectName Then
+                n.TaskListRange.Offset(0, -1).Value = CLng(i)
+            End If
+        Next
+        i = i + 1
     Next
 End Sub
 
@@ -317,6 +327,10 @@ Private Function RemoveNumberPrefix(tmp_str As String) As String
 End Function
 
 Private Sub Btn_SetCompletedIcon()
+    If getOvalCollection_SE.Count < 1 Then
+        MsgBox "Kindly select 1 node at least.", vbInformation
+        Exit Sub
+    End If
     On Error Resume Next
     IconSheet.ChartObjects("CompletedIcon").Chart.Export Environ("temp") & "\NDT_CompletedIcon.bmp"
     Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CompletedIcon.bmp"
@@ -324,6 +338,10 @@ Private Sub Btn_SetCompletedIcon()
 End Sub
 
 Private Sub Btn_SetCancelledIcon()
+    If getOvalCollection_SE.Count < 1 Then
+        MsgBox "Kindly select 1 node at least.", vbInformation
+        Exit Sub
+    End If
     On Error Resume Next
     IconSheet.ChartObjects("CancelledIcon").Chart.Export Environ("temp") & "\NDT_CancelledIcon.bmp"
     Selection.ShapeRange.Fill.UserPicture Environ("temp") & "\NDT_CancelledIcon.bmp"
@@ -331,6 +349,10 @@ Private Sub Btn_SetCancelledIcon()
 End Sub
 
 Private Sub Btn_SetInProgressIcon()
+    If getOvalCollection_SE.Count < 1 Then
+        MsgBox "Kindly select 1 node at least.", vbInformation
+        Exit Sub
+    End If
     Dim percentage: percentage = InputBox("i’»—¦(%)‚ð1`99‚Ì®”‚Å“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B")
     
     If Not IsNumeric(percentage) Then
@@ -360,6 +382,10 @@ End Sub
 
 
 Private Sub Btn_ClearIcon()
+    If getOvalCollection_SE.Count < 1 Then
+        MsgBox "Kindly select 1 node at least.", vbInformation
+        Exit Sub
+    End If
     On Error Resume Next
     With Selection.ShapeRange.Fill
         .Solid
