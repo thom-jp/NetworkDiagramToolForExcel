@@ -40,7 +40,7 @@ Public Property Get Self() As Object
 End Property
 
 Public Property Get TaskNumber()
-    TaskNumber = val(TaskTitle)
+    TaskNumber = Int(val(TaskTitle))
 End Property
 
 Public Property Get UnnumberedTaskTitle()
