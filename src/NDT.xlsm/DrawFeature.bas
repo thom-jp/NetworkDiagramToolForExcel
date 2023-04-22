@@ -165,6 +165,11 @@ Private Sub Btn_RemoveConnections()
 End Sub
 
 Private Sub Btn_SwapNodeLocation()
+    If getOvalCollection_SE.Count <> 2 Then
+        MsgBox "Kindly select just 2 nodes.", vbInformation
+        Exit Sub
+    End If
+    
     Dim sh1 As Shape
     Dim sh2 As Shape
     Set sh1 = Selection.ShapeRange(1)
@@ -183,12 +188,13 @@ End Sub
 Private Sub Btn_OrderNodeVertical()
     'To keep selection order, store shapes to a Collection.
     Dim c As Collection
-    Set c = New Collection
+    Set c = getOvalCollection_SE
+    If c.Count < 2 Then
+        MsgBox "Kindly select 2 nodes at least.", vbInformation
+        Exit Sub
+    End If
+    
     Dim sh As Shape
-    For Each sh In Selection.ShapeRange
-        c.Add sh
-    Next
-
     Selection.ShapeRange.Group.Select
     Dim leftEdge  As Single
     leftEdge = Round(Selection.ShapeRange.Left, 3)
@@ -240,9 +246,13 @@ End Sub
 'Postfix _SE means that it has Side Effects
 Private Function getOvalCollection_SE() As Collection
     Set getOvalCollection_SE = New Collection
+    If TypeName(Selection) = "Range" Then Exit Function
+    
     Dim shp As Shape
     For Each shp In Selection.ShapeRange
-        getOvalCollection_SE.Add shp
+        If shp.AutoShapeType = msoShapeOval Then
+            getOvalCollection_SE.Add shp
+        End If
     Next
 End Function
 
